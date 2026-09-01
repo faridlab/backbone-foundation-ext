@@ -1,0 +1,119 @@
+# =============================================================================
+# foundation_ext — the fire ledger: AutomationRun (every disposition is a
+# row — no silent skips).
+#
+# A run row exists for every claim that MATCHED at least one rule pattern:
+# fired (actions applied), suppressed_self_trigger (the recursion guard's
+# self-exclusion leg — audited, not silent), depth_capped (the causal depth
+# cap leg), skipped_model_mismatch (pattern matched, watched model didn't),
+# and refused_body (a body the fire-time re-validation refuses — e.g. a
+# deleted-event rule carrying a record-targeted action). Events that match
+# no rule's pattern claim their inbox slot and are NOT run-rows (a
+# non-match is the common case, not a disposition).
+#
+# The run ledger + effect_event_ids are the recursion registry: the engine
+# records the ids of every event its writes produced, so a later envelope
+# carrying one of those ids is KNOWN to be an automation's own write, and
+# the producing rule never fires on it.
+# =============================================================================
+
+models:
+
+  - name: AutomationRun
+    collection: foundation_automation_runs
+    read_only: true
+    description: "Automation Run — the fire ledger: one row per (envelope, matched rule) disposition, including every refusal. The reaction layer's audit trail and recursion registry."
+    fields:
+      id:
+        type: uuid
+        attributes: ["@id", "@default(uuid)"]
+        description: "Unique run id (the AutomationFired event's aggregate id)"
+      automation_id:
+        type: uuid
+        attributes: ["@required", "@indexed", "@foreign_key(AutomationRule.foundation_automation_rules)"]
+        description: "The rule that fired (or was suppressed/capped). A REAL same-module FK: runs outlive nothing — a rule with a run history is soft-deleted, never removed out from under its ledger (no cascade declared, deliberately)."
+      trigger:
+        type: FoundationTriggerKind
+        attributes: ["@required"]
+        description: "The rule's WHEN arm, denormalized at fire time (the ledger reads without a join)."
+      status:
+        type: FoundationRunStatus
+        attributes: ["@required", "@default(fired)"]
+        lifecycle:
+          shape: hand_set
+          # No `state_machine:` ref — deliberate, recorded. DECLARATION OF
+          # RECORD: run status is write-once by the engine at claim time
+          # inside the fire transaction (fired / suppressed_self_trigger /
+          # depth_capped / skipped_model_mismatch / refused_body). A failed
+          # fire ROLLS BACK — no row survives a failure, so the ledger
+          # never says fired for an effect that did not commit (no phantom
+          # fires). There are NO transitions; the bus's at-least-once
+          # redelivery is deduped by the inbox claim, not by status flips.
+        description: "The disposition — every outcome is a row; nothing is skipped silently."
+      envelope_id:
+        type: string
+        attributes: ["@required", "@max(64)", "@indexed", "@exclude_from_foreign_key_check"]
+        description: "The triggering envelope id (the end-to-end dedup key the inbox claimed). For scheduler fires: the DETERMINISTIC uuid v5 over (rule, record, time-field generation) — a re-tick mints the same id and dedups."
+      source_event_type:
+        type: string?
+        attributes: ["@max(160)"]
+        description: "The triggering event type (or 'AutomationTimeDue' for scheduler fires)."
+      aggregate_id:
+        type: string?
+        attributes: ["@max(160)", "@exclude_from_foreign_key_check"]
+        description: "The watched record's id from the envelope aggregate (the gateway's target key)."
+      parent_run_id:
+        type: uuid?
+        attributes: ["@indexed", "@foreign_key(AutomationRun.foundation_automation_runs)"]
+        description: "The run whose write PRODUCED the triggering envelope (the recursion chain), when known — via the effect registry or the causation token. NULL for organic events and scheduler fires."
+      depth:
+        type: integer
+        attributes: ["@required", "@default(0)"]
+        description: "Causal depth: 0 for organic triggers, parent.depth + 1 along an automation-caused chain. The depth cap refuses beyond the configured ceiling (audited as depth_capped)."
+      actions_applied:
+        type: json
+        attributes: ["@required"]
+        description: "The declarative body resolved at fire time (an echo of the rule's action list — the ledger shows exactly what was applied, from the closed vocabulary)."
+      effect_event_ids:
+        type: json
+        attributes: ["@required"]
+        description: "The ids of events the run's writes produced (reported by the gateway, in-transaction) — the recursion registry. A later envelope carrying one of these ids is known to be an automation's own write; the producing rule never fires on it."
+      detail:
+        type: string?
+        attributes: ["@max(500)"]
+        description: "Refusal/effect detail (why a disposition row exists, what the gateway applied)."
+      occurred_at:
+        type: datetime
+        attributes: ["@required"]
+        description: "When the fire (or refusal) happened."
+      metadata:
+        type: Metadata
+        attributes: ["@audit_metadata"]
+        description: "Audit metadata"
+
+    indexes:
+      - type: index
+        fields: [automation_id, occurred_at]
+        description: "The per-rule fire history (rate/loop audits)"
+      - type: index
+        fields: [status]
+        description: "Refusal dashboards (suppressions and caps are first-class)"
+      - type: index
+        fields: [envelope_id]
+        description: "Envelope-keyed ledger lookups (the dedup cross-check)"
+
+enums:
+  - name: FoundationRunStatus
+    description: "Every disposition is a row — the no-silent-skip ledger (hand-set, write-once by the engine)"
+    variants:
+      - name: fired
+        description: "Actions applied in the committed transaction (the AutomationFired event is staged with it)"
+        default: true
+      - name: suppressed_self_trigger
+        description: "The recursion guard's self-exclusion leg: the envelope was produced by THIS rule's own write"
+      - name: depth_capped
+        description: "The causal depth cap leg: the automation-caused chain exceeded the configured ceiling"
+      - name: skipped_model_mismatch
+        description: "The event pattern matched but the envelope's watched model is not the rule's model"
+      - name: refused_body
+        description: "Fire-time re-validation refused the body (e.g. a deleted-event rule carrying a record-targeted action)"

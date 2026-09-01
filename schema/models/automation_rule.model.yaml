@@ -1,0 +1,108 @@
+# =============================================================================
+# foundation_ext — the declarative rule: AutomationRule (operator config).
+#
+# PORT DECISIONS (source: docs/odoo/foundation/extensions/ — cycle 36):
+#  - A rule is DATA, never code. The body is a JSON array drawn from a
+#    CLOSED vocabulary (field sets, transitions, notifications) validated at
+#    write time by the guarded rule service and parsed at fire time by a
+#    serde enum with deny_unknown_fields and NO catch-all variant — an
+#    action outside the vocabulary cannot be stored, and stored bodies
+#    cannot smuggle code (ECR-4 vocabulary discipline).
+#  - Every model here is read_only over HTTP: there is NO generated write
+#    route for rules (or anything else in this module) — the guarded rule
+#    service is the only writer, and the module mounts nothing public.
+#  - The W7 trigger surface is transition/lifecycle events that exist today
+#    on the staged outbox (declarations of record in
+#    docs/fe-r2-rescope.md). on_change and on_webhook do NOT port.
+#    on_unlink ports as trigger_kind on_deleted — the deleted-event
+#    trigger — and a deleted-event rule may not target the record (no
+#    field sets, no transitions, no mail-to-record: the record is gone).
+# =============================================================================
+
+models:
+
+  - name: AutomationRule
+    collection: foundation_automation_rules
+    read_only: true
+    description: "Automation Rule — one declarative reaction: WHEN (trigger) a watched model's transition/lifecycle event fires (or a time threshold passes), APPLY the closed-vocabulary action list. Reaction layer only: it owns no invariants, hooks no write paths, and mounts no routes."
+    fields:
+      id:
+        type: uuid
+        attributes: ["@id", "@default(uuid)"]
+        description: "Unique record id"
+      name:
+        type: string
+        attributes: ["@required", "@max(120)"]
+        description: "Operator-facing rule name (audit + run-ledger correlation)."
+      description:
+        type: string?
+        attributes: ["@max(500)"]
+        description: "Free-text intent note — prose for humans; the executable content of a rule is ONLY the declarative action list."
+      model:
+        type: string
+        attributes: ["@required", "@max(120)"]
+        description: "The DECLARATIVE watched model key — the aggregate type exactly as it appears on the event envelope's source_context (e.g. 'User', 'SalesOrder'). A string, not a foreign key: this module has no cargo edge and no DB FK into any watched module; mismatching events are audited as skipped_model_mismatch, never fired."
+      trigger_kind:
+        type: FoundationTriggerKind
+        attributes: ["@required", "@default(on_event)"]
+        lifecycle:
+          shape: hand_set
+          # No `state_machine:` ref — deliberate, recorded. DECLARATION OF
+          # RECORD for the trigger surface: on_event = a transition /
+          # lifecycle integration event on the staged outbox matched by
+          # trigger_pattern (exact name, 'prefix.*' suffix wildcard, or
+          # '*'); on_deleted = the on_unlink port — the deleted-event
+          # trigger, with record-targeted actions REFUSED at write time
+          # and re-refused at fire time; on_time = the scheduler's time
+          # rule (time_field + delay_minutes). on_change and on_webhook
+          # DO NOT PORT (today's staged payloads are thin — id +
+          # occurred_at — so field-gated form-write automations are not a
+          # promised surface; docs/fe-r2-rescope.md).
+        description: "WHEN arm: event / deleted-event / time."
+      trigger_pattern:
+        type: string?
+        attributes: ["@max(160)", "@indexed"]
+        description: "Required for on_event / on_deleted: the integration event type matched against the envelope — exact ('UserDeactivated'), suffix wildcard ('sapiens.*'), or '*'. Validated at write time: a '*' may only appear as the whole pattern or a trailing '.*'."
+      time_field:
+        type: string?
+        attributes: ["@max(63)"]
+        description: "Required for on_time: the watched model's datetime field the delay counts from (a lowercase SQL identifier; resolved by the host-wired gateway, never by this module)."
+      delay_minutes:
+        type: integer?
+        description: "Required for on_time: the rule is due delay_minutes after time_field (>= 1). The smallest live delay feeds the scheduler's interval ladder."
+      actions:
+        type: json
+        attributes: ["@required"]
+        description: "The declarative body — a JSON array from the CLOSED vocabulary {set_fields, transition, notify}. Validated at write time (the guarded rule service) and parsed at fire time by a deny_unknown_fields serde enum with no catch-all variant: unknown action kinds, unknown fields, and non-scalar field values are structurally inexpressible. No safe_eval, no stored code, no literal_eval'd domain text."
+      active:
+        type: boolean
+        attributes: ["@required", "@default(true)"]
+        description: "Enablement flag — a row exists or it does not; there is no third state (not a lifecycle). Inactive rules match nothing and do not arm the scheduler."
+      created_by_source:
+        type: string?
+        attributes: ["@max(120)"]
+        description: "Provenance of the operator/tool that authored the rule (free-text source label — this module has no actor FK by design)."
+      metadata:
+        type: Metadata
+        attributes: ["@audit_metadata"]
+        description: "Audit metadata"
+
+    indexes:
+      - type: index
+        fields: [active, trigger_kind]
+        description: "The engine's live-rule scan (active rules by trigger kind)"
+      - type: index
+        fields: [trigger_pattern]
+        description: "Pattern-keyed lookups for rule audits"
+
+enums:
+  - name: FoundationTriggerKind
+    description: "The WHEN arm — the W7 trigger surface (declaration of record in the trigger_kind lifecycle block)"
+    variants:
+      - name: on_event
+        description: "A transition/lifecycle integration event on the staged outbox, matched by trigger_pattern"
+        default: true
+      - name: on_deleted
+        description: "The on_unlink port: the deleted-event trigger — record-targeted actions refused (the record is gone)"
+      - name: on_time
+        description: "The scheduler's time rule: due delay_minutes after the watched model's time_field"

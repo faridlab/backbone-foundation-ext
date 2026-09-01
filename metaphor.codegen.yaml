@@ -1,0 +1,72 @@
+# Codegen policy for foundation_ext.
+#
+# `user_owned` globs are hand-written files that live inside generator-owned
+# trees but are NOT schema-derived. `metaphor schema generate [--force]`
+# skips them wholesale (never reads, merges, or deletes them). Everything
+# else in src/ is regenerated from schema/models.
+#
+# Re-exports/declarations that must sit alongside generated code live inside
+# `// <<< CUSTOM ... // END CUSTOM` markers (lib.rs, application/service/
+# mod.rs) and are preserved by the marker mechanism, not listed here.
+#
+# Declared BEFORE any file lands (the regen-safety contract): a landing
+# without the declaration is clobbered on the next regen; a declaration
+# without the file is the dangling class removed by review — later seats
+# extend this list on the same contract, declaring each hand file in the
+# same change that lands it.
+
+user_owned:
+  # The module's typed error surface (one enum, HTTP mappings) — shared by
+  # every hand service below.
+  - "src/application/service/foundation_error.rs"
+
+  # The CLOSED declarative action vocabulary (no safe_eval, no stored code,
+  # no literal_eval'd domain TEXT): a serde enum with deny_unknown_fields
+  # and NO catch-all variant — an action body outside the vocabulary cannot
+  # be parsed, stored, or fired. Unknown action kinds and unknown fields
+  # are structurally inexpressible.
+  - "src/application/service/action_spec.rs"
+
+  # The guarded rule write path: vocabulary + trigger-shape validation
+  # (the ONLY way automation rules are written — every model here is
+  # read_only over HTTP, so no generated write route exists).
+  - "src/application/service/rule_service.rs"
+
+  # The reaction layer's ONLY reach into other modules: the gateway port.
+  # The module owns the trait + the REFUSING default; the composing host
+  # registers the adapter that applies field sets / transitions /
+  # notifications through the owning modules' validated write services and
+  # discovers due records for time rules. Unwired = loud NotComposed
+  # refusal (the survey certification-port precedent).
+  - "src/application/service/gateway_port.rs"
+
+  # The reaction engine: the IntegrationEventHandler the HOST registers on
+  # its bus. In-transaction staging, at-least-once delivery with
+  # inbox_consumed dedup, no phantom fires, and the three-leg recursion
+  # guard (produced-event registry self-trigger exclusion + dedup + causal
+  # depth cap).
+  - "src/application/service/reaction_engine.rs"
+
+  # The declared-posture scheduler: inactive by default, activates iff a
+  # time-rule exists, interval ladder min(max(1, min_delay//10), 240)
+  # minutes RECOMPUTED from live rules every tick (the declared deviation
+  # — never an only-ever-shrink ratchet).
+  - "src/application/service/scheduler_service.rs"
+
+  # Hand-written DDL: this module's transactional outbox + inbox dedup
+  # tables (mirrors backbone_outbox::outbox::migrate — the sapiens
+  # precedent).
+  - "migrations/*outbox*"
+
+  # Hand-authored module documentation (root docs + the trigger-surface
+  # record this module owes the register).
+  - "README.md"
+  - "SPEC.md"
+  - "docs/**"
+
+  # The fail-hard probe suite (fresh scratch DB per test; a missing
+  # scratch Postgres panics the suite rather than skipping) — the
+  # self-trigger exactly-once probe, the inbox-dedup probe, the causal
+  # depth cap, the scheduler ladder, the deleted-trigger guards, the
+  # closed vocabulary, and the no-write-routes probe.
+  - "tests/**"

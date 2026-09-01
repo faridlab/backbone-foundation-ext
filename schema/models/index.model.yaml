@@ -1,0 +1,118 @@
+# =============================================================================
+# foundation_ext Module - Schema Index
+# =============================================================================
+# Version: 1.0
+# Description: Module schema index. `module:` and `schema:` are stamped from
+# the module name. `schema: foundation_ext` gives this module its OWN Postgres
+# schema (migrations emit `CREATE SCHEMA foundation_ext` and qualify tables as
+# `foundation_ext.<table>`) — the convention every backbone module follows
+# (see backbone-sapiens, backbone-portal). Do not remove it.
+#
+# Enum types are created UNQUALIFIED in the `public` schema (the module
+# convention, ratified). The three names below were census-checked against
+# every module migration in the tree before landing (465 existing enum type
+# names, zero exact or stem collisions; the nearest neighbor `trigger_type`
+# belongs to another module and is distinct from every stem declared here:
+# foundation_trigger_kind / foundation_run_status /
+# foundation_scheduler_posture).
+#
+# WHAT THIS MODULE IS (the W7 ruling, verbatim substance): automations are a
+# REACTION layer. It owns ZERO invariants — database constraints and the
+# owning modules' verbs hold every invariant; an automation only reacts to
+# events that already happened. Bodies are declarative data (a closed
+# action vocabulary — field sets, transitions, notifications); there is no
+# safe_eval, no stored code, no literal_eval'd domain text anywhere in this
+# module. on_change/on_webhook triggers do not port (today's staged event
+# payloads are thin — id + occurred_at — so field-gated form-write
+# automations are not a surface this module promises; see
+# docs/fe-r2-rescope.md, the declaration of record for the trigger
+# surface). on_unlink ports as the deleted-event trigger (trigger_kind
+# on_deleted) with record-targeted actions refused. The public
+# /web/hook/<uuid> endpoint and every public automation route are BANNED —
+# this module mounts nothing that can execute an automation; webhook intake
+# exists only under ADR-0021, elsewhere.
+# =============================================================================
+
+module: foundation_ext
+version: 1
+schema: foundation_ext
+description: "foundation_ext — declarative automations as a reaction layer over the staged outbox: rules subscribe to transition/lifecycle integration events (the deleted-event trigger ports on_unlink with no mail-to-record actions), fire in-transaction with inbox_consumed dedup under a three-leg recursion guard (produced-event self-trigger exclusion + dedup + causal depth cap), and a declared-posture scheduler activates only when a time rule exists (Odoo base_automation port; automations own no invariants — DB constraints and owning verbs do)"
+
+# ADR-0014 company fence: automation rules are PLATFORM-scoped operator
+# configuration, not company documents — there is no company column and no
+# company RLS policy on any table here (posture `none`, declared). The
+# records a rule WATCHES carry their owning modules' fences; the reaction
+# layer never widens access to them because every reach goes through the
+# host-wired gateway, which runs in the host's tenant context. Tenant
+# isolation (ADR-0006) remains the only fence.
+company_fence: none
+
+config:
+  database: postgresql
+  soft_delete: true
+  audit: true
+  default_timestamps: true
+  generators:
+    disabled:
+      - graphql
+      - grpc
+      - proto
+
+# No external imports: this module has NO cargo edge and NO DB foreign key
+# into any other module's tables. The watched model is referenced by its
+# DECLARATIVE name string (the aggregate type as it appears on the event
+# envelope's source_context, e.g. "User" / "SalesOrder") and every actual
+# read/write crosses the gateway port the composing host wires.
+
+# Shared value-object types available to all models in this module.
+shared_types:
+  Timestamps:
+    created_at:
+      type: datetime
+      attributes: ["@default(now)"]
+      description: "Record creation timestamp"
+    updated_at:
+      type: datetime
+      attributes: ["@updated_at"]
+      description: "Last update timestamp"
+    deleted_at:
+      type: datetime?
+      description: "Soft delete timestamp"
+
+  # NOTE — deliberately NO actor stamps (portal's Metadata carries
+  # created_by/updated_by as sapiens refs): the reaction layer writes as
+  # the system, not as a user. Rule AUTHORITY is a first-class named column
+  # on the rule (created_by_source), and every fire is attributable through
+  # the run ledger (envelope id + rule id) — an opaque actor uuid keyed to
+  # a module this crate has no edge to would be noise, not provenance.
+  Metadata: [Timestamps]
+
+# Import each entity model (informational — discovery is a recursive glob,
+# but keeping the list accurate helps readers).
+imports:
+  - automation_rule.model.yaml
+  - automation_run.model.yaml
+  - scheduler_posture.model.yaml
+
+# =============================================================================
+# FLAG-ID COVERAGE — the cycle-36 port decisions this module closes (spec
+# tree: docs/odoo/foundation/extensions/):
+#
+# FE-01 (Odoo monkey-patches create/write/unlink at registry time; raw SQL
+#   bypasses ALL of it) → event-bus-driven by construction: automations
+#   subscribe to integration events through the outbox/inbox contract, and
+#   a raw-SQL write simply produces no event (the silent skip — the
+#   platform-wide raw-SQL-out-of-contract note; this module opens NO NEW
+#   bypass surface because it hooks nothing).
+# FE-03/04 (the public /web/hook/<uuid> safe_eval endpoint) → BANNED,
+#   declined-by-design: no safe_eval surface exists, no public automation
+#   route exists, webhook intake lives only under ADR-0021.
+# FE-R2 (field-gated on_write automations) → RE-SCOPED at this schema
+#   freeze: the W7 trigger surface is transition/lifecycle events that
+#   exist today on the staged outbox; the changed-fields envelope is its
+#   own demand-gated framework increment — never silently promised. See
+#   docs/fe-r2-rescope.md.
+# FE-02/05..12 → homed at their owners per the pass conditions (bulkops
+#   import host, party/banking validators, fence vocabulary), recorded in
+#   the workspace register, not here.
+# =============================================================================

@@ -1,0 +1,81 @@
+# =============================================================================
+# foundation_ext — the declared scheduler posture: SchedulerPosture (a
+# single row, rewritten every tick).
+#
+# DECLARED POSTURE (the W7 ruling): the scheduler is INACTIVE by default —
+# it activates iff a live (active, on_time) rule exists. Its interval is
+# computed by the ladder min(max(1, min_delay // 10), 240) minutes from the
+# CURRENT live rule set on EVERY tick — the declared deviation: the
+# interval is recomputed, never ratcheted (it grows back when the rule set
+# changes; an only-ever-shrink schedule is explicitly NOT the behavior).
+# The tick itself is host-scheduled (the module spawns nothing); this row
+# is the observable record of what the last tick saw and computed.
+# =============================================================================
+
+models:
+
+  - name: SchedulerPosture
+    collection: foundation_scheduler_posture
+    read_only: true
+    description: "Scheduler Posture — the singleton row recording what the last scheduler tick saw: inactive/active, the live time-rule count, the smallest live delay, and the ladder interval it computed. The declared-deviation record (recompute from live rules, never only-ever-shrink)."
+    fields:
+      id:
+        type: uuid
+        attributes: ["@id", "@default(uuid)"]
+        description: "Unique record id"
+      singleton:
+        type: boolean
+        attributes: ["@required", "@default(true)"]
+        description: "The single-row guard — a unique index on this constant-true column admits exactly one posture row (UPSERT target)."
+      posture:
+        type: FoundationSchedulerPosture
+        attributes: ["@required", "@default(inactive)"]
+        lifecycle:
+          shape: hand_set
+          # No `state_machine:` ref — deliberate, recorded. DECLARATION OF
+          # RECORD: inactive is the DEFAULT posture (no time rules = the
+          # tick is a no-op that still records itself); active means at
+          # least one live time rule existed at the last evaluation. Both
+          # values are freely re-enterable — the posture follows the live
+          # rule set down AND up (recompute, not a ratchet).
+        description: "inactive by default; active iff a live time rule exists."
+      time_rule_count:
+        type: integer
+        attributes: ["@required", "@default(0)"]
+        description: "Live (active, on_time) rules the tick saw."
+      min_delay_minutes:
+        type: integer?
+        description: "The smallest live delay — the ladder's input (NULL when no time rules)."
+      interval_minutes:
+        type: integer?
+        description: "The ladder output min(max(1, min_delay_minutes // 10), 240) — RECOMPUTED every tick from live rules (NULL when no time rules)."
+      last_evaluated_at:
+        type: datetime?
+        description: "When the tick last ran."
+      last_fired_count:
+        type: integer
+        attributes: ["@required", "@default(0)"]
+        description: "Due fires the last tick applied (deterministic-id deduped — a re-tick fires nothing new)."
+      last_deviation_note:
+        type: string?
+        attributes: ["@max(300)"]
+        description: "The declared-deviation line the tick recorded (interval recomputed up/down from the previous value, or the inactive/active flip)."
+      metadata:
+        type: Metadata
+        attributes: ["@audit_metadata"]
+        description: "Audit metadata"
+
+    indexes:
+      - type: unique
+        fields: [singleton]
+        description: "Exactly one posture row (the UPSERT target)"
+
+enums:
+  - name: FoundationSchedulerPosture
+    description: "The scheduler posture — inactive by default, active iff a time rule exists (hand-set; follows the live rule set in both directions)"
+    variants:
+      - name: inactive
+        description: "No live time rules — the tick is a recorded no-op"
+        default: true
+      - name: active
+        description: "At least one live time rule; the ladder interval governs the host-scheduled cadence"

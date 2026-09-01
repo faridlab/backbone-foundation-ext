@@ -1,0 +1,82 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+  grpc_port: 50051
+database:
+  url: postgresql://root:password@localhost:5432/skeletondb
+  max_connections: 10
+  min_connections: 5
+  connect_timeout: 30
+  idle_timeout: 600
+logging:
+  level: info
+  format: json
+  file: logs/foundation_ext.log
+jobs: {}
+foundation_ext:
+  automation:
+    causal_depth_cap: 5
+    max_actions_per_rule: 10
+  scheduler:
+    posture: declared
+    interval_divisor: 10
+    interval_floor_minutes: 1
+    interval_ceiling_minutes: 240
+module:
+  name: foundation_ext
+  enabled: true
+features:
+  soft_delete: true
+  state_machines: false
+  workflows: false
+entities:
+  foundation_automation_rule:
+    collection: foundation_automation_rules
+    enabled: true
+    cache_ttl: 0
+    pagination:
+      default_limit: 50
+      max_limit: 500
+  foundation_automation_run:
+    collection: foundation_automation_runs
+    enabled: true
+    cache_ttl: 0
+    pagination:
+      default_limit: 100
+      max_limit: 1000
+  foundation_scheduler_posture:
+    collection: foundation_scheduler_posture
+    enabled: true
+    cache_ttl: 0
+    pagination:
+      default_limit: 5
+      max_limit: 10
+  automation_rule:
+    collection: foundation_automation_rules
+    enabled: true
+    cache_ttl: 300
+    pagination:
+      default_limit: 20
+      max_limit: 100
+  automation_run:
+    collection: foundation_automation_runs
+    enabled: true
+    cache_ttl: 300
+    pagination:
+      default_limit: 20
+      max_limit: 100
+  scheduler_posture:
+    collection: foundation_scheduler_posture
+    enabled: true
+    cache_ttl: 300
+    pagination:
+      default_limit: 20
+      max_limit: 100
+tracing:
+  enabled: true
+  exporter: otlp
+  endpoint: http://localhost:4317
+metrics:
+  enabled: true
+  endpoint: /metrics
+  port: 9090
