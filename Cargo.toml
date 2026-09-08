@@ -16,18 +16,18 @@ path = "src/lib.rs"
 # at module creation (single-rev policy: every framework source in the
 # resolved graph resolves to this one tag).
 # -----------------------------------------------------------------------------
-backbone-core = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.15", features = ["postgres"] }
-backbone-orm = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.15" }
-backbone-auth = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.15" }
+backbone-core = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.16", features = ["postgres"] }
+backbone-orm = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.16" }
+backbone-auth = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.16" }
 # The envelope + handler contract this module consumes (the host registers
 # the reaction handler on ITS integration bus — this module never self-
 # registers).
-backbone-messaging = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.15" }
+backbone-messaging = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.16" }
 # Framework plumbing: outbox::stage (this module's own AutomationFired
 # events, staged in-transaction with the run) + inbox::once (the
 # (consumer, event_id) dedup that turns the relay's at-least-once delivery
 # into an exactly-once effect).
-backbone-outbox = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.15" }
+backbone-outbox = { git = "https://github.com/faridlab/backbone-framework", tag = "v2.7.16" }
 
 # Sibling modules: NONE by design. Automations are a reaction layer over
 # OTHER modules' events; every reach into a watched module's records goes
