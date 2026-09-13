@@ -38,14 +38,13 @@ version: 1
 schema: foundation_ext
 description: "foundation_ext — declarative automations as a reaction layer over the staged outbox: rules subscribe to transition/lifecycle integration events (the deleted-event trigger ports on_unlink with no mail-to-record actions), fire in-transaction with inbox_consumed dedup under a three-leg recursion guard (produced-event self-trigger exclusion + dedup + causal depth cap), and a declared-posture scheduler activates only when a time rule exists (Odoo base_automation port; automations own no invariants — DB constraints and owning verbs do)"
 
-# ADR-0014 company fence: automation rules are PLATFORM-scoped operator
-# configuration, not company documents — there is no company column and no
-# company RLS policy on any table here (posture `none`, declared). The
-# records a rule WATCHES carry their owning modules' fences; the reaction
-# layer never widens access to them because every reach goes through the
-# host-wired gateway, which runs in the host's tenant context. Tenant
-# isolation (ADR-0006) remains the only fence.
-company_fence: none
+# Company fence: none by design — automation rules are PLATFORM-scoped operator
+# configuration, not company documents: no company column, no company RLS
+# policy on any table here (ADR-0014 posture `none`). The records a rule
+# WATCHES carry their owning modules' fences; the reaction layer never widens
+# access to them because every reach goes through the host-wired gateway, which
+# runs in the host's tenant context. The module is tenant-agnostic (ADR-0029);
+# tenant isolation (ADR-0006) remains the only fence.
 
 config:
   database: postgresql
