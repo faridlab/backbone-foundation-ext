@@ -7,7 +7,7 @@ info:
     This API provides 11 standard CRUD endpoints for each model.
 
 servers:
-  - url: http://localhost:3000
+  - url: /
     description: Development server
 
 tags:
@@ -19,7 +19,7 @@ tags:
     description: SchedulerPosture management endpoints
 
 paths:
-  /api/v1/automation_rules:
+  /api/v1/foundation_ext/automation_rules:
     get:
       tags:
         - AutomationRules
@@ -65,7 +65,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /api/v1/automation_rules/{id}:
+  /api/v1/foundation_ext/automation_rules/{id}:
     parameters:
       - $ref: '#/components/parameters/IdParam'
 
@@ -137,7 +137,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/automation_rules/bulk:
+  /api/v1/foundation_ext/automation_rules/bulk:
     post:
       tags:
         - AutomationRules
@@ -229,7 +229,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/automation_rules/upsert:
+  /api/v1/foundation_ext/automation_rules/upsert:
     post:
       tags:
         - AutomationRules
@@ -259,7 +259,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AutomationRule'
 
-  /api/v1/automation_rules/trash:
+  /api/v1/foundation_ext/automation_rules/trash:
     get:
       tags:
         - AutomationRules
@@ -276,7 +276,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AutomationRuleList'
 
-  /api/v1/automation_rules/{id}/restore:
+  /api/v1/foundation_ext/automation_rules/{id}/restore:
     parameters:
       - $ref: '#/components/parameters/IdParam'
     post:
@@ -294,7 +294,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/automation_rules/empty:
+  /api/v1/foundation_ext/automation_rules/empty:
     delete:
       tags:
         - AutomationRules
@@ -311,7 +311,7 @@ paths:
                   deleted_count:
                     type: integer
 
-  /api/v1/automation_rules/delete/bulk:
+  /api/v1/foundation_ext/automation_rules/delete/bulk:
     post:
       tags:
         - AutomationRules
@@ -331,7 +331,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/automation_rules/restore/bulk:
+  /api/v1/foundation_ext/automation_rules/restore/bulk:
     post:
       tags:
         - AutomationRules
@@ -349,7 +349,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/automation_rules/restore/all:
+  /api/v1/foundation_ext/automation_rules/restore/all:
     post:
       tags:
         - AutomationRules
@@ -365,7 +365,7 @@ paths:
                 properties:
                   restored: { type: integer }
 
-  /api/v1/automation_rules/trash/bulk:
+  /api/v1/foundation_ext/automation_rules/trash/bulk:
     delete:
       tags:
         - AutomationRules
@@ -385,7 +385,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/automation_runs:
+  /api/v1/foundation_ext/automation_runs:
     get:
       tags:
         - AutomationRuns
@@ -431,7 +431,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /api/v1/automation_runs/{id}:
+  /api/v1/foundation_ext/automation_runs/{id}:
     parameters:
       - $ref: '#/components/parameters/IdParam'
 
@@ -503,7 +503,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/automation_runs/bulk:
+  /api/v1/foundation_ext/automation_runs/bulk:
     post:
       tags:
         - AutomationRuns
@@ -595,7 +595,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/automation_runs/upsert:
+  /api/v1/foundation_ext/automation_runs/upsert:
     post:
       tags:
         - AutomationRuns
@@ -625,7 +625,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AutomationRun'
 
-  /api/v1/automation_runs/trash:
+  /api/v1/foundation_ext/automation_runs/trash:
     get:
       tags:
         - AutomationRuns
@@ -642,7 +642,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AutomationRunList'
 
-  /api/v1/automation_runs/{id}/restore:
+  /api/v1/foundation_ext/automation_runs/{id}/restore:
     parameters:
       - $ref: '#/components/parameters/IdParam'
     post:
@@ -660,7 +660,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/automation_runs/empty:
+  /api/v1/foundation_ext/automation_runs/empty:
     delete:
       tags:
         - AutomationRuns
@@ -677,7 +677,7 @@ paths:
                   deleted_count:
                     type: integer
 
-  /api/v1/automation_runs/delete/bulk:
+  /api/v1/foundation_ext/automation_runs/delete/bulk:
     post:
       tags:
         - AutomationRuns
@@ -697,7 +697,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/automation_runs/restore/bulk:
+  /api/v1/foundation_ext/automation_runs/restore/bulk:
     post:
       tags:
         - AutomationRuns
@@ -715,7 +715,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/automation_runs/restore/all:
+  /api/v1/foundation_ext/automation_runs/restore/all:
     post:
       tags:
         - AutomationRuns
@@ -731,7 +731,7 @@ paths:
                 properties:
                   restored: { type: integer }
 
-  /api/v1/automation_runs/trash/bulk:
+  /api/v1/foundation_ext/automation_runs/trash/bulk:
     delete:
       tags:
         - AutomationRuns
@@ -751,7 +751,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/scheduler_postures:
+  /api/v1/foundation_ext/scheduler_postures:
     get:
       tags:
         - SchedulerPostures
@@ -797,7 +797,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /api/v1/scheduler_postures/{id}:
+  /api/v1/foundation_ext/scheduler_postures/{id}:
     parameters:
       - $ref: '#/components/parameters/IdParam'
 
@@ -869,7 +869,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/scheduler_postures/bulk:
+  /api/v1/foundation_ext/scheduler_postures/bulk:
     post:
       tags:
         - SchedulerPostures
@@ -961,7 +961,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/scheduler_postures/upsert:
+  /api/v1/foundation_ext/scheduler_postures/upsert:
     post:
       tags:
         - SchedulerPostures
@@ -991,7 +991,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SchedulerPosture'
 
-  /api/v1/scheduler_postures/trash:
+  /api/v1/foundation_ext/scheduler_postures/trash:
     get:
       tags:
         - SchedulerPostures
@@ -1008,7 +1008,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SchedulerPostureList'
 
-  /api/v1/scheduler_postures/{id}/restore:
+  /api/v1/foundation_ext/scheduler_postures/{id}/restore:
     parameters:
       - $ref: '#/components/parameters/IdParam'
     post:
@@ -1026,7 +1026,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/scheduler_postures/empty:
+  /api/v1/foundation_ext/scheduler_postures/empty:
     delete:
       tags:
         - SchedulerPostures
@@ -1043,7 +1043,7 @@ paths:
                   deleted_count:
                     type: integer
 
-  /api/v1/scheduler_postures/delete/bulk:
+  /api/v1/foundation_ext/scheduler_postures/delete/bulk:
     post:
       tags:
         - SchedulerPostures
@@ -1063,7 +1063,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/scheduler_postures/restore/bulk:
+  /api/v1/foundation_ext/scheduler_postures/restore/bulk:
     post:
       tags:
         - SchedulerPostures
@@ -1081,7 +1081,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /api/v1/scheduler_postures/restore/all:
+  /api/v1/foundation_ext/scheduler_postures/restore/all:
     post:
       tags:
         - SchedulerPostures
@@ -1097,7 +1097,7 @@ paths:
                 properties:
                   restored: { type: integer }
 
-  /api/v1/scheduler_postures/trash/bulk:
+  /api/v1/foundation_ext/scheduler_postures/trash/bulk:
     delete:
       tags:
         - SchedulerPostures
