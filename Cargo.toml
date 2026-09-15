@@ -1,6 +1,6 @@
 [package]
 name = "backbone-foundation-ext"
-version = "0.1.9"
+version = "0.1.10"
 edition = "2021"
 description = "Declarative automations as a REACTION layer over the staged outbox — rules subscribe to transition/lifecycle integration events through the host-wired gateway port, fire in-transaction with inbox dedup (at-least-once delivery, exactly-once effect), under a three-leg recursion guard (produced-event self-trigger exclusion + dedup + causal depth cap), with a declared-posture adaptive scheduler that is inactive unless a time rule exists (Odoo base_automation port)"
 
