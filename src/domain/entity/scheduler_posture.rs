@@ -251,6 +251,7 @@ impl backbone_orm::EntityRepoMeta for SchedulerPosture {
         let mut m = std::collections::HashMap::new();
         m.insert("id".to_string(), "uuid".to_string());
         m.insert("posture".to_string(), "foundation_scheduler_posture".to_string());
+        m.insert("last_evaluated_at".to_string(), "timestamptz".to_string());
         m
     }
     fn search_fields() -> &'static [&'static str] {

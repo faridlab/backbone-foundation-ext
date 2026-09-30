@@ -280,6 +280,7 @@ impl backbone_orm::EntityRepoMeta for AutomationRun {
         m.insert("parent_run_id".to_string(), "uuid".to_string());
         m.insert("trigger".to_string(), "foundation_trigger_kind".to_string());
         m.insert("status".to_string(), "foundation_run_status".to_string());
+        m.insert("occurred_at".to_string(), "timestamptz".to_string());
         m
     }
     fn search_fields() -> &'static [&'static str] {

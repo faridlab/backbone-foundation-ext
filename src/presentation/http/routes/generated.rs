@@ -57,15 +57,15 @@ pub mod individual {
     use super::*;
 
     pub fn automation_rule_routes(service: Arc<AutomationRuleService>) -> Router {
-        create_automation_rule_routes(service)
+        create_automation_rule_read_routes(service)
     }
 
     pub fn automation_run_routes(service: Arc<AutomationRunService>) -> Router {
-        create_automation_run_routes(service)
+        create_automation_run_read_routes(service)
     }
 
     pub fn scheduler_posture_routes(service: Arc<SchedulerPostureService>) -> Router {
-        create_scheduler_posture_routes(service)
+        create_scheduler_posture_read_routes(service)
     }
 
 }
