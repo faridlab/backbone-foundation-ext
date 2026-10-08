@@ -234,6 +234,9 @@ impl super::Entity for AutomationRule {
 }
 
 impl backbone_core::PersistentEntity for AutomationRule {
+    fn write_protected_fields() -> &'static [&'static str] {
+        &["trigger_kind"]
+    }
     fn entity_id(&self) -> String {
         self.id.to_string()
     }
