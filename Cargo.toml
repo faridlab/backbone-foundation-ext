@@ -1,6 +1,6 @@
 [package]
 name = "backbone-foundation-ext"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Declarative automations as a REACTION layer over the staged outbox — rules subscribe to transition/lifecycle integration events through the host-wired gateway port, fire in-transaction with inbox dedup (at-least-once delivery, exactly-once effect), under a three-leg recursion guard (produced-event self-trigger exclusion + dedup + causal depth cap), with a declared-posture adaptive scheduler that is inactive unless a time rule exists (Odoo base_automation port)"
 license = "MIT OR Apache-2.0"
@@ -11,6 +11,8 @@ exclude = [".claude/", ".github/", "graphify-out/"]
 path = "src/lib.rs"
 
 [dependencies]
+# OpenAPI schema derive, only with the `openapi` feature.
+utoipa = { version = "5", optional = true, features = ["chrono", "uuid"] }
 # -----------------------------------------------------------------------------
 # Backbone Framework crates
 #
@@ -72,6 +74,15 @@ thiserror = "1.0"
 # Configuration
 config = "0.14"
 serde_yaml = "0.9"
+
+
+[features]
+# Generated code gates its OpenAPI derives, request validation and auth extraction
+# behind these features; declaring them keeps every cfg checked by the compiler.
+default = []
+auth = []
+openapi = ["dep:utoipa"]
+validation = []
 
 [dev-dependencies]
 tempfile = "3.0"
