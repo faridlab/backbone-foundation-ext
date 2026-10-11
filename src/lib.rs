@@ -27,6 +27,16 @@ pub mod exports;
 // <<< CUSTOM MODULES
 // END CUSTOM
 
+// The module's extension (hand-written; ADR-0031).
+#[path = "lib.ext.rs"]
+mod lib_ext;
+pub use lib_ext::*;
+/// This crate's module and builder under fixed names, for the extension's `impl` blocks.
+#[allow(dead_code)]
+pub(crate) type ThisModule = FoundationExtModule;
+#[allow(dead_code)]
+pub(crate) type ThisModuleBuilder = FoundationExtModuleBuilder;
+
 // Re-exports for convenience - Domain entities
 pub use domain::entity::*;
 
@@ -58,21 +68,35 @@ pub struct FoundationExtModule {
     pub(crate) automation_rule_service: Arc<AutomationRuleService>,
     pub(crate) automation_run_service: Arc<AutomationRunService>,
     pub(crate) scheduler_posture_service: Arc<SchedulerPostureService>,
+    /// The module's extension state (`lib.ext.rs`); its fields read through `Deref`.
+    pub(crate) ext: ModuleExt,
     // <<< CUSTOM FIELDS
-    /// The fail-closed gateway slot the host fills at compose time (the
-    /// module's ONLY reach into watched modules' records).
-    pub(crate) gateway_slot: Arc<application::service::gateway_port::AutomationGatewaySlot>,
-    /// The guarded rule administration service (the only rule writer).
-    pub(crate) rule_service: Arc<application::service::rule_service::RuleService>,
-    /// The reaction engine — register on the HOST's integration bus; this
-    /// module never self-registers.
-    pub(crate) reaction_handler:
-        Arc<application::service::reaction_engine::AutomationReactionHandler>,
-    /// The declared-posture scheduler — the host's timer loop calls
-    /// `evaluate_tick`; the module owns no threads.
-    pub(crate) scheduler:
-        Arc<application::service::scheduler_service::AutomationScheduler>,
     // END CUSTOM
+}
+
+impl std::ops::Deref for FoundationExtModule {
+    type Target = ModuleExt;
+    fn deref(&self) -> &Self::Target {
+        &self.ext
+    }
+}
+
+impl std::ops::DerefMut for FoundationExtModule {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.ext
+    }
+}
+
+/// What the extension's `build` hook receives from the generated build (ADR-0031).
+#[allow(dead_code)]
+pub(crate) struct ModuleParts<'a> {
+    pub(crate) db_pool: &'a PgPool,
+    pub(crate) automation_rule_service: &'a Arc<AutomationRuleService>,
+    pub(crate) automation_rule_repository: &'a Arc<AutomationRuleRepository>,
+    pub(crate) automation_run_service: &'a Arc<AutomationRunService>,
+    pub(crate) automation_run_repository: &'a Arc<AutomationRunRepository>,
+    pub(crate) scheduler_posture_service: &'a Arc<SchedulerPostureService>,
+    pub(crate) scheduler_posture_repository: &'a Arc<SchedulerPostureRepository>,
 }
 
 impl FoundationExtModule {
@@ -128,63 +152,29 @@ impl FoundationExtModule {
     }
 
     // <<< CUSTOM METHODS
-    /// The shared fail-closed gateway slot.
-    pub fn gateway_slot(
-        &self,
-    ) -> &Arc<application::service::gateway_port::AutomationGatewaySlot> {
-        &self.gateway_slot
-    }
-
-    /// Install the HOST's gateway adapter (compose time). Until this is
-    /// called, every fire refuses loudly as NotComposed — fail-closed by
-    /// design (the survey certification-port precedent).
-    pub fn install_gateway(
-        &self,
-        gateway: Arc<dyn application::service::gateway_port::AutomationGateway>,
-    ) {
-        self.gateway_slot.install(gateway);
-    }
-
-    /// Whether a gateway adapter is installed (compose-time diagnostics:
-    /// warn loudly when a module that has rules is unwired).
-    pub fn gateway_is_wired(&self) -> bool {
-        self.gateway_slot.is_wired()
-    }
-
-    /// The guarded rule administration service (create/replace/activate/
-    /// retire/list — the only writer of automation rules; all generated
-    /// route surfaces are read-only).
-    pub fn rule_service(&self) -> &application::service::rule_service::RuleService {
-        &self.rule_service
-    }
-
-    /// The reaction engine. The HOST registers this handler on its
-    /// integration bus (`bus.subscribe(module.reaction_handler())`) and
-    /// relays its own outbox onto that bus; the handler subscribes with
-    /// pattern `"*"` and does its own rule-pattern matching.
-    pub fn reaction_handler(
-        &self,
-    ) -> &Arc<application::service::reaction_engine::AutomationReactionHandler> {
-        &self.reaction_handler
-    }
-
-    /// The declared-posture scheduler. The host's timer loop calls
-    /// `scheduler().evaluate_tick(now)` at the interval the posture row
-    /// records; with no live time rules the posture is `inactive` and a
-    /// tick is a no-op.
-    pub fn scheduler(
-        &self,
-    ) -> &Arc<application::service::scheduler_service::AutomationScheduler> {
-        &self.scheduler
-    }
     // END CUSTOM
 }
 
 /// Builder for FoundationExtModule
 pub struct FoundationExtModuleBuilder {
     db_pool: Option<PgPool>,
+    /// The builder's extension state (`lib.ext.rs`); its fields read through `Deref`.
+    ext: ModuleBuilderExt,
     // <<< CUSTOM BUILDER FIELDS
     // END CUSTOM
+}
+
+impl std::ops::Deref for FoundationExtModuleBuilder {
+    type Target = ModuleBuilderExt;
+    fn deref(&self) -> &Self::Target {
+        &self.ext
+    }
+}
+
+impl std::ops::DerefMut for FoundationExtModuleBuilder {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.ext
+    }
 }
 
 impl FoundationExtModuleBuilder {
@@ -192,6 +182,7 @@ impl FoundationExtModuleBuilder {
     pub fn new() -> Self {
         Self {
             db_pool: None,
+            ext: Default::default(),
             // <<< CUSTOM BUILDER DEFAULTS
             // END CUSTOM
         }
@@ -224,39 +215,25 @@ impl FoundationExtModuleBuilder {
         let scheduler_posture_service = Arc::new(SchedulerPostureService::with_repository(scheduler_posture_repository.clone()));
 
         // <<< CUSTOM
-        // Hand services share one fail-closed gateway slot: the reaction
-        // engine and the scheduler both reach watched modules only through
-        // it, and the host installs its adapter once at compose time.
-        let gateway_slot = Arc::new(
-            application::service::gateway_port::AutomationGatewaySlot::new(),
-        );
-        let rule_service = Arc::new(application::service::rule_service::RuleService::new(
-            db_pool.clone(),
-        ));
-        let reaction_handler =
-            Arc::new(application::service::reaction_engine::AutomationReactionHandler::new(
-                db_pool.clone(),
-                gateway_slot.clone(),
-                application::service::reaction_engine::DEFAULT_CAUSAL_DEPTH_CAP,
-            ));
-        let scheduler = Arc::new(
-            application::service::scheduler_service::AutomationScheduler::new(
-                db_pool.clone(),
-                gateway_slot.clone(),
-                application::service::scheduler_service::LadderConfig::default(),
-            ),
-        );
         // END CUSTOM
+
+        // The extension builds its own state from what the generated build made.
+        let ext = self.ext.build(&ModuleParts {
+            db_pool: &db_pool,
+            automation_rule_service: &automation_rule_service,
+            automation_rule_repository: &automation_rule_repository,
+            automation_run_service: &automation_run_service,
+            automation_run_repository: &automation_run_repository,
+            scheduler_posture_service: &scheduler_posture_service,
+            scheduler_posture_repository: &scheduler_posture_repository,
+        })?;
 
         Ok(FoundationExtModule {
             automation_rule_service,
             automation_run_service,
             scheduler_posture_service,
+            ext,
             // <<< CUSTOM
-            gateway_slot,
-            rule_service,
-            reaction_handler,
-            scheduler,
             // END CUSTOM
         })
     }
