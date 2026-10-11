@@ -16,9 +16,5 @@ pub type SchedulerPostureValidator = EntityValidator<SchedulerPosture>;
 pub fn scheduler_posture_validator() -> SchedulerPostureValidator {
     EntityValidator::new()
         .rule(OptionalNotBlank::new("last_deviation_note", |e: &SchedulerPosture| e.last_deviation_note.as_deref()))
-    // <<< CUSTOM RULES
-    // END CUSTOM RULES
 }
 
-// <<< CUSTOM
-// END CUSTOM

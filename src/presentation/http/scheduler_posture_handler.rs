@@ -187,3 +187,4 @@ pub fn create_protected_scheduler_posture_routes<A: AuthMiddleware + Send + Sync
             }
         }))
 }
+

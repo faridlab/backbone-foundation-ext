@@ -341,7 +341,7 @@ impl backbone_core::ApplyUpdateDto<UpdateAutomationRuleDto> for AutomationRule {
 // Custom DTOs
 // =============================================================================
 
-// <<< CUSTOM DTOs
 // Add custom DTOs specific to AutomationRule here.
 // This section will be preserved during regeneration.
 // >>> END CUSTOM DTOs
+

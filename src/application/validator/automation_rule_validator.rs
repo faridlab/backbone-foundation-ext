@@ -21,9 +21,5 @@ pub fn automation_rule_validator() -> AutomationRuleValidator {
         .rule(OptionalNotBlank::new("trigger_pattern", |e: &AutomationRule| e.trigger_pattern.as_deref()))
         .rule(OptionalNotBlank::new("time_field", |e: &AutomationRule| e.time_field.as_deref()))
         .rule(OptionalNotBlank::new("created_by_source", |e: &AutomationRule| e.created_by_source.as_deref()))
-    // <<< CUSTOM RULES
-    // END CUSTOM RULES
 }
 
-// <<< CUSTOM
-// END CUSTOM

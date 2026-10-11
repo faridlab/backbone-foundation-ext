@@ -18,5 +18,3 @@ use crate::domain::entity::SchedulerPosture;
 /// service. `PermitAllPolicy` is the safe default until then.
 pub type SchedulerPostureDomainPolicy = PermitAllPolicy<SchedulerPosture>;
 
-// <<< CUSTOM
-// END CUSTOM

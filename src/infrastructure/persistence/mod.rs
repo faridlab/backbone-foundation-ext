@@ -9,8 +9,6 @@ mod automation_run_repository;
 mod scheduler_posture_repository;
 
 // Custom persistence modules
-// <<< CUSTOM
-// END CUSTOM
 
 // Re-exports
 pub use automation_rule_repository::AutomationRuleRepository;
@@ -25,5 +23,3 @@ pub use backbone_orm::repository::{
 };
 
 // Re-export custom persistence types
-// <<< CUSTOM
-// END CUSTOM

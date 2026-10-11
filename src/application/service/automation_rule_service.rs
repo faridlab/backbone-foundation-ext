@@ -32,5 +32,3 @@ pub type AutomationRuleService = GenericCrudService<
     AutomationRuleRepository,
 >;
 
-// <<< CUSTOM
-// END CUSTOM

@@ -19,9 +19,5 @@ pub fn automation_run_validator() -> AutomationRunValidator {
         .rule(OptionalNotBlank::new("source_event_type", |e: &AutomationRun| e.source_event_type.as_deref()))
         .rule(OptionalNotBlank::new("aggregate_id", |e: &AutomationRun| e.aggregate_id.as_deref()))
         .rule(OptionalNotBlank::new("detail", |e: &AutomationRun| e.detail.as_deref()))
-    // <<< CUSTOM RULES
-    // END CUSTOM RULES
 }
 
-// <<< CUSTOM
-// END CUSTOM

@@ -10,5 +10,3 @@ pub use automation_rule_domain_policy::AutomationRuleDomainPolicy;
 pub use automation_run_domain_policy::AutomationRunDomainPolicy;
 pub use scheduler_posture_domain_policy::SchedulerPostureDomainPolicy;
 
-// <<< CUSTOM
-// END CUSTOM

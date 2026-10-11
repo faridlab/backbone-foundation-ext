@@ -18,5 +18,3 @@ use crate::domain::entity::AutomationRun;
 /// service. `PermitAllPolicy` is the safe default until then.
 pub type AutomationRunDomainPolicy = PermitAllPolicy<AutomationRun>;
 
-// <<< CUSTOM
-// END CUSTOM

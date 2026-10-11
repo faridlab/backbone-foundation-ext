@@ -9,12 +9,8 @@ pub mod automation_rule_handler;
 pub mod automation_run_handler;
 pub mod scheduler_posture_handler;
 
-// <<< CUSTOM
-// END CUSTOM
 
 // Re-exports
 pub use automation_rule_handler::{create_automation_rule_routes, create_automation_rule_read_routes, create_automation_rule_write_routes};
 pub use automation_run_handler::{create_automation_run_routes, create_automation_run_read_routes, create_automation_run_write_routes};
 pub use scheduler_posture_handler::{create_scheduler_posture_routes, create_scheduler_posture_read_routes, create_scheduler_posture_write_routes};
-// <<< CUSTOM
-// END CUSTOM

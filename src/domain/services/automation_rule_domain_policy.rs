@@ -18,5 +18,3 @@ use crate::domain::entity::AutomationRule;
 /// service. `PermitAllPolicy` is the safe default until then.
 pub type AutomationRuleDomainPolicy = PermitAllPolicy<AutomationRule>;
 
-// <<< CUSTOM
-// END CUSTOM

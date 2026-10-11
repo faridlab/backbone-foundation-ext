@@ -308,7 +308,7 @@ impl backbone_core::ApplyUpdateDto<UpdateSchedulerPostureDto> for SchedulerPostu
 // Custom DTOs
 // =============================================================================
 
-// <<< CUSTOM DTOs
 // Add custom DTOs specific to SchedulerPosture here.
 // This section will be preserved during regeneration.
 // >>> END CUSTOM DTOs
+

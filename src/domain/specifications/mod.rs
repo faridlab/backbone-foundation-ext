@@ -10,5 +10,3 @@ pub mod automation_rule_specification;
 pub mod automation_run_specification;
 pub mod scheduler_posture_specification;
 
-// <<< CUSTOM
-// END CUSTOM

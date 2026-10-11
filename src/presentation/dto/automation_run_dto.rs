@@ -364,7 +364,7 @@ impl backbone_core::ApplyUpdateDto<UpdateAutomationRunDto> for AutomationRun {
 // Custom DTOs
 // =============================================================================
 
-// <<< CUSTOM DTOs
 // Add custom DTOs specific to AutomationRun here.
 // This section will be preserved during regeneration.
 // >>> END CUSTOM DTOs
+

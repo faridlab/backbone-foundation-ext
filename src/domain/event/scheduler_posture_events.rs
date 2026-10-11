@@ -11,8 +11,6 @@ use crate::domain::entity::SchedulerPosture;
 /// enum containing a `Crud(CrudEvent<SchedulerPosture>)` variant.
 pub type SchedulerPostureEvent = CrudEvent<SchedulerPosture>;
 
-// <<< CUSTOM
-// END CUSTOM
 
 use backbone_messaging::{CrudEventPublisher, NoOpCrudEventPublisher};
 use std::sync::Arc;

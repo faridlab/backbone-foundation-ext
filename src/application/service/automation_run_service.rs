@@ -32,5 +32,3 @@ pub type AutomationRunService = GenericCrudService<
     AutomationRunRepository,
 >;
 
-// <<< CUSTOM
-// END CUSTOM

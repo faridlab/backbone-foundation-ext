@@ -16,5 +16,3 @@ pub use automation_run_event_handlers::AutomationRunEventHandler;
 pub use scheduler_posture_events::{SchedulerPostureEvent, SchedulerPostureEventPublisher, NoopSchedulerPostureEventPublisher};
 pub use scheduler_posture_event_handlers::SchedulerPostureEventHandler;
 
-// <<< CUSTOM
-// END CUSTOM

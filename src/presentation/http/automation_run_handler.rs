@@ -187,3 +187,4 @@ pub fn create_protected_automation_run_routes<A: AuthMiddleware + Send + Sync + 
             }
         }))
 }
+

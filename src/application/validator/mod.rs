@@ -13,5 +13,3 @@ pub use automation_rule_validator::{AutomationRuleValidator, automation_rule_val
 pub use automation_run_validator::{AutomationRunValidator, automation_run_validator};
 pub use scheduler_posture_validator::{SchedulerPostureValidator, scheduler_posture_validator};
 
-// <<< CUSTOM
-// END CUSTOM

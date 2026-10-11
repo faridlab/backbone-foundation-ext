@@ -24,8 +24,6 @@ pub mod application;
 pub mod presentation;
 pub mod seeders;
 pub mod exports;
-// <<< CUSTOM MODULES
-// END CUSTOM
 
 // The module's extension (hand-written; ADR-0031).
 #[path = "lib.ext.rs"]
@@ -70,8 +68,6 @@ pub struct FoundationExtModule {
     pub(crate) scheduler_posture_service: Arc<SchedulerPostureService>,
     /// The module's extension state (`lib.ext.rs`); its fields read through `Deref`.
     pub(crate) ext: ModuleExt,
-    // <<< CUSTOM FIELDS
-    // END CUSTOM
 }
 
 impl std::ops::Deref for FoundationExtModule {
@@ -151,8 +147,6 @@ impl FoundationExtModule {
             .merge(create_scheduler_posture_read_routes(self.scheduler_posture_service.clone()))
     }
 
-    // <<< CUSTOM METHODS
-    // END CUSTOM
 }
 
 /// Builder for FoundationExtModule
@@ -160,8 +154,6 @@ pub struct FoundationExtModuleBuilder {
     db_pool: Option<PgPool>,
     /// The builder's extension state (`lib.ext.rs`); its fields read through `Deref`.
     ext: ModuleBuilderExt,
-    // <<< CUSTOM BUILDER FIELDS
-    // END CUSTOM
 }
 
 impl std::ops::Deref for FoundationExtModuleBuilder {
@@ -183,8 +175,6 @@ impl FoundationExtModuleBuilder {
         Self {
             db_pool: None,
             ext: Default::default(),
-            // <<< CUSTOM BUILDER DEFAULTS
-            // END CUSTOM
         }
     }
 
@@ -194,8 +184,6 @@ impl FoundationExtModuleBuilder {
         self
     }
 
-    // <<< CUSTOM - custom builder methods
-    // END CUSTOM
 
     /// Build the module with configured dependencies
     pub fn build(self) -> anyhow::Result<FoundationExtModule> {
@@ -214,8 +202,6 @@ impl FoundationExtModuleBuilder {
         let scheduler_posture_repository = Arc::new(SchedulerPostureRepository::new(db_pool.clone()));
         let scheduler_posture_service = Arc::new(SchedulerPostureService::with_repository(scheduler_posture_repository.clone()));
 
-        // <<< CUSTOM
-        // END CUSTOM
 
         // The extension builds its own state from what the generated build made.
         let ext = self.ext.build(&ModuleParts {
@@ -233,8 +219,6 @@ impl FoundationExtModuleBuilder {
             automation_run_service,
             scheduler_posture_service,
             ext,
-            // <<< CUSTOM
-            // END CUSTOM
         })
     }
 }

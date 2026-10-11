@@ -11,8 +11,6 @@ use crate::domain::entity::AutomationRule;
 /// enum containing a `Crud(CrudEvent<AutomationRule>)` variant.
 pub type AutomationRuleEvent = CrudEvent<AutomationRule>;
 
-// <<< CUSTOM
-// END CUSTOM
 
 use backbone_messaging::{CrudEventPublisher, NoOpCrudEventPublisher};
 use std::sync::Arc;

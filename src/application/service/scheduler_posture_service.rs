@@ -32,5 +32,3 @@ pub type SchedulerPostureService = GenericCrudService<
     SchedulerPostureRepository,
 >;
 
-// <<< CUSTOM
-// END CUSTOM

@@ -11,14 +11,10 @@ pub mod automation_rule_service;
 pub mod automation_run_service;
 pub mod scheduler_posture_service;
 
-// <<< CUSTOM
-// END CUSTOM
 
 pub use automation_rule_service::AutomationRuleService;
 pub use automation_run_service::AutomationRunService;
 pub use scheduler_posture_service::SchedulerPostureService;
-// <<< CUSTOM
-// END CUSTOM
 
 // This directory's extension (hand-written; ADR-0031).
 include!("mod.ext.rs");
