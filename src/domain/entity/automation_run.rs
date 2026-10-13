@@ -287,6 +287,9 @@ impl backbone_orm::EntityRepoMeta for AutomationRun {
     fn search_fields() -> &'static [&'static str] {
         &["envelope_id"]
     }
+    fn relations() -> &'static [(&'static str, &'static str, &'static str)] {
+        &[("automation", "foundation_automation_rules", "automationId"), ("parentRun", "foundation_automation_runs", "parentRunId")]
+    }
 }
 
 /// Builder for AutomationRun entity
