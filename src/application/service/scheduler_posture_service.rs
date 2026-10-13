@@ -56,12 +56,13 @@ impl backbone_core::write_guard::WriteGuard<SchedulerPosture> for SchedulerPostu
         };
         let row = &row;
         let old = ctx.before.and_then(|b| serde_json::to_value(b).ok());
-        let mut shadow = Vec::new();
+        let shadow = Vec::new();
+        let mut refuse = Vec::new();
         // `last_deviation_note_max_length` (@max(300) on SchedulerPosture.last_deviation_note)
         if (create || (update && r::changed(old.as_ref(), row, &["last_deviation_note"]))) && !r::holds(&r::le(r::length(r::field(row, "last_deviation_note")), r::Val::Num(300.0_f64))) {
-            shadow.push(Violation::new("last_deviation_note", "max_length", "last_deviation_note must be at most 300 characters").with_param("max", 300_i64));
+            refuse.push(Violation::new("last_deviation_note", "max_length", "last_deviation_note must be at most 300 characters").with_param("max", 300_i64));
         }
-        GuardOutcome { refuse: Vec::new(), shadow }
+        GuardOutcome { refuse, shadow }
     }
 }
 

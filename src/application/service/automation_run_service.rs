@@ -56,7 +56,7 @@ impl backbone_core::write_guard::WriteGuard<AutomationRun> for AutomationRunRowR
         };
         let row = &row;
         let old = ctx.before.and_then(|b| serde_json::to_value(b).ok());
-        let mut shadow = Vec::new();
+        let shadow = Vec::new();
         let mut refuse = Vec::new();
         // `automation_id_required` (@required on AutomationRun.automation_id)
         if (create || (update && r::changed(old.as_ref(), row, &["automation_id"]))) && !r::holds(&r::and(r::is_not_null(r::field(row, "automation_id")), r::not(r::is_empty(r::trim(r::field(row, "automation_id")))))) {
@@ -68,19 +68,19 @@ impl backbone_core::write_guard::WriteGuard<AutomationRun> for AutomationRunRowR
         }
         // `envelope_id_max_length` (@max(64) on AutomationRun.envelope_id)
         if (create || (update && r::changed(old.as_ref(), row, &["envelope_id"]))) && !r::holds(&r::le(r::length(r::field(row, "envelope_id")), r::Val::Num(64.0_f64))) {
-            shadow.push(Violation::new("envelope_id", "max_length", "envelope_id must be at most 64 characters").with_param("max", 64_i64));
+            refuse.push(Violation::new("envelope_id", "max_length", "envelope_id must be at most 64 characters").with_param("max", 64_i64));
         }
         // `source_event_type_max_length` (@max(160) on AutomationRun.source_event_type)
         if (create || (update && r::changed(old.as_ref(), row, &["source_event_type"]))) && !r::holds(&r::le(r::length(r::field(row, "source_event_type")), r::Val::Num(160.0_f64))) {
-            shadow.push(Violation::new("source_event_type", "max_length", "source_event_type must be at most 160 characters").with_param("max", 160_i64));
+            refuse.push(Violation::new("source_event_type", "max_length", "source_event_type must be at most 160 characters").with_param("max", 160_i64));
         }
         // `aggregate_id_max_length` (@max(160) on AutomationRun.aggregate_id)
         if (create || (update && r::changed(old.as_ref(), row, &["aggregate_id"]))) && !r::holds(&r::le(r::length(r::field(row, "aggregate_id")), r::Val::Num(160.0_f64))) {
-            shadow.push(Violation::new("aggregate_id", "max_length", "aggregate_id must be at most 160 characters").with_param("max", 160_i64));
+            refuse.push(Violation::new("aggregate_id", "max_length", "aggregate_id must be at most 160 characters").with_param("max", 160_i64));
         }
         // `detail_max_length` (@max(500) on AutomationRun.detail)
         if (create || (update && r::changed(old.as_ref(), row, &["detail"]))) && !r::holds(&r::le(r::length(r::field(row, "detail")), r::Val::Num(500.0_f64))) {
-            shadow.push(Violation::new("detail", "max_length", "detail must be at most 500 characters").with_param("max", 500_i64));
+            refuse.push(Violation::new("detail", "max_length", "detail must be at most 500 characters").with_param("max", 500_i64));
         }
         GuardOutcome { refuse, shadow }
     }
