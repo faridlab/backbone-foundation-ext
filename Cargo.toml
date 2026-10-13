@@ -21,7 +21,7 @@ utoipa = { version = "5", optional = true, features = ["chrono", "uuid"] }
 # at module creation (single-rev policy: every framework source in the
 # resolved graph resolves to this one tag).
 # -----------------------------------------------------------------------------
-backbone-core = { version = "3.0.0", features = ["postgres"] }
+backbone-core = { version = "3.7.0", features = ["postgres"] }
 backbone-orm = { version = "3.0.0" }
 backbone-auth = { version = "3.0.0" }
 # The envelope + handler contract this module consumes (the host registers

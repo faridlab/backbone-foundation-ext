@@ -192,15 +192,15 @@ impl FoundationExtModuleBuilder {
 
         // AutomationRule service
         let automation_rule_repository = Arc::new(AutomationRuleRepository::new(db_pool.clone()));
-        let automation_rule_service = Arc::new(AutomationRuleService::with_repository(automation_rule_repository.clone()));
+        let automation_rule_service = Arc::new(AutomationRuleService::with_repository(automation_rule_repository.clone()).with_guard(Arc::new(crate::application::service::AutomationRuleRowRules)));
 
         // AutomationRun service
         let automation_run_repository = Arc::new(AutomationRunRepository::new(db_pool.clone()));
-        let automation_run_service = Arc::new(AutomationRunService::with_repository(automation_run_repository.clone()));
+        let automation_run_service = Arc::new(AutomationRunService::with_repository(automation_run_repository.clone()).with_guard(Arc::new(crate::application::service::AutomationRunRowRules)));
 
         // SchedulerPosture service
         let scheduler_posture_repository = Arc::new(SchedulerPostureRepository::new(db_pool.clone()));
-        let scheduler_posture_service = Arc::new(SchedulerPostureService::with_repository(scheduler_posture_repository.clone()));
+        let scheduler_posture_service = Arc::new(SchedulerPostureService::with_repository(scheduler_posture_repository.clone()).with_guard(Arc::new(crate::application::service::SchedulerPostureRowRules)));
 
 
         // The extension builds its own state from what the generated build made.

@@ -32,3 +32,65 @@ pub type AutomationRuleService = GenericCrudService<
     AutomationRuleRepository,
 >;
 
+/// The rules the schema declares for AutomationRule, checked against the row a create or update
+/// would store. The generated build attaches it to [`AutomationRuleService`]. A refusing rule's
+/// break answers 422; a rule in shadow is logged under `backbone::write_guard` and the
+/// write goes ahead.
+pub struct AutomationRuleRowRules;
+
+#[async_trait::async_trait]
+impl backbone_core::write_guard::WriteGuard<AutomationRule> for AutomationRuleRowRules {
+    async fn check(
+        &self,
+        ctx: &backbone_core::write_guard::WriteCtx<'_, AutomationRule>,
+    ) -> backbone_core::write_guard::GuardOutcome {
+        use backbone_core::row_rule as r;
+        use backbone_core::violation::Violation;
+        use backbone_core::write_guard::{GuardOutcome, WriteKind};
+        let (create, update) = (ctx.kind == WriteKind::Create, ctx.kind == WriteKind::Update);
+        let Some(after) = ctx.after.filter(|_| create || update) else {
+            return GuardOutcome::allow();
+        };
+        let Ok(row) = serde_json::to_value(after) else {
+            return GuardOutcome::allow();
+        };
+        let row = &row;
+        let old = ctx.before.and_then(|b| serde_json::to_value(b).ok());
+        let mut shadow = Vec::new();
+        let mut refuse = Vec::new();
+        // `name_required` (@required on AutomationRule.name)
+        if (create || (update && r::changed(old.as_ref(), row, &["name"]))) && !r::holds(&r::and(r::is_not_null(r::field(row, "name")), r::not(r::is_empty(r::trim(r::field(row, "name")))))) {
+            refuse.push(Violation::new("name", "required", "name is required"));
+        }
+        // `name_max_length` (@max(120) on AutomationRule.name)
+        if (create || (update && r::changed(old.as_ref(), row, &["name"]))) && !r::holds(&r::le(r::length(r::field(row, "name")), r::Val::Num(120.0_f64))) {
+            shadow.push(Violation::new("name", "max_length", "name must be at most 120 characters").with_param("max", 120_i64));
+        }
+        // `description_max_length` (@max(500) on AutomationRule.description)
+        if (create || (update && r::changed(old.as_ref(), row, &["description"]))) && !r::holds(&r::le(r::length(r::field(row, "description")), r::Val::Num(500.0_f64))) {
+            shadow.push(Violation::new("description", "max_length", "description must be at most 500 characters").with_param("max", 500_i64));
+        }
+        // `model_required` (@required on AutomationRule.model)
+        if (create || (update && r::changed(old.as_ref(), row, &["model"]))) && !r::holds(&r::and(r::is_not_null(r::field(row, "model")), r::not(r::is_empty(r::trim(r::field(row, "model")))))) {
+            refuse.push(Violation::new("model", "required", "model is required"));
+        }
+        // `model_max_length` (@max(120) on AutomationRule.model)
+        if (create || (update && r::changed(old.as_ref(), row, &["model"]))) && !r::holds(&r::le(r::length(r::field(row, "model")), r::Val::Num(120.0_f64))) {
+            shadow.push(Violation::new("model", "max_length", "model must be at most 120 characters").with_param("max", 120_i64));
+        }
+        // `trigger_pattern_max_length` (@max(160) on AutomationRule.trigger_pattern)
+        if (create || (update && r::changed(old.as_ref(), row, &["trigger_pattern"]))) && !r::holds(&r::le(r::length(r::field(row, "trigger_pattern")), r::Val::Num(160.0_f64))) {
+            shadow.push(Violation::new("trigger_pattern", "max_length", "trigger_pattern must be at most 160 characters").with_param("max", 160_i64));
+        }
+        // `time_field_max_length` (@max(63) on AutomationRule.time_field)
+        if (create || (update && r::changed(old.as_ref(), row, &["time_field"]))) && !r::holds(&r::le(r::length(r::field(row, "time_field")), r::Val::Num(63.0_f64))) {
+            shadow.push(Violation::new("time_field", "max_length", "time_field must be at most 63 characters").with_param("max", 63_i64));
+        }
+        // `created_by_source_max_length` (@max(120) on AutomationRule.created_by_source)
+        if (create || (update && r::changed(old.as_ref(), row, &["created_by_source"]))) && !r::holds(&r::le(r::length(r::field(row, "created_by_source")), r::Val::Num(120.0_f64))) {
+            shadow.push(Violation::new("created_by_source", "max_length", "created_by_source must be at most 120 characters").with_param("max", 120_i64));
+        }
+        GuardOutcome { refuse, shadow }
+    }
+}
+

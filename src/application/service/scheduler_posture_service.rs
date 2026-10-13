@@ -32,3 +32,36 @@ pub type SchedulerPostureService = GenericCrudService<
     SchedulerPostureRepository,
 >;
 
+/// The rules the schema declares for SchedulerPosture, checked against the row a create or update
+/// would store. The generated build attaches it to [`SchedulerPostureService`]. A refusing rule's
+/// break answers 422; a rule in shadow is logged under `backbone::write_guard` and the
+/// write goes ahead.
+pub struct SchedulerPostureRowRules;
+
+#[async_trait::async_trait]
+impl backbone_core::write_guard::WriteGuard<SchedulerPosture> for SchedulerPostureRowRules {
+    async fn check(
+        &self,
+        ctx: &backbone_core::write_guard::WriteCtx<'_, SchedulerPosture>,
+    ) -> backbone_core::write_guard::GuardOutcome {
+        use backbone_core::row_rule as r;
+        use backbone_core::violation::Violation;
+        use backbone_core::write_guard::{GuardOutcome, WriteKind};
+        let (create, update) = (ctx.kind == WriteKind::Create, ctx.kind == WriteKind::Update);
+        let Some(after) = ctx.after.filter(|_| create || update) else {
+            return GuardOutcome::allow();
+        };
+        let Ok(row) = serde_json::to_value(after) else {
+            return GuardOutcome::allow();
+        };
+        let row = &row;
+        let old = ctx.before.and_then(|b| serde_json::to_value(b).ok());
+        let mut shadow = Vec::new();
+        // `last_deviation_note_max_length` (@max(300) on SchedulerPosture.last_deviation_note)
+        if (create || (update && r::changed(old.as_ref(), row, &["last_deviation_note"]))) && !r::holds(&r::le(r::length(r::field(row, "last_deviation_note")), r::Val::Num(300.0_f64))) {
+            shadow.push(Violation::new("last_deviation_note", "max_length", "last_deviation_note must be at most 300 characters").with_param("max", 300_i64));
+        }
+        GuardOutcome { refuse: Vec::new(), shadow }
+    }
+}
+

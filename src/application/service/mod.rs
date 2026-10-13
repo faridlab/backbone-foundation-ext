@@ -15,6 +15,9 @@ pub mod scheduler_posture_service;
 pub use automation_rule_service::AutomationRuleService;
 pub use automation_run_service::AutomationRunService;
 pub use scheduler_posture_service::SchedulerPostureService;
+pub use automation_rule_service::AutomationRuleRowRules;
+pub use automation_run_service::AutomationRunRowRules;
+pub use scheduler_posture_service::SchedulerPostureRowRules;
 
 // This directory's extension (hand-written; ADR-0031).
 include!("mod.ext.rs");
