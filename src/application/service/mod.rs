@@ -19,5 +19,29 @@ pub use automation_rule_service::AutomationRuleRowRules;
 pub use automation_run_service::AutomationRunRowRules;
 pub use scheduler_posture_service::SchedulerPostureRowRules;
 
+/// A `AutomationRuleService` over `repository` with its write guard attached: the way to build it, so its writes are
+/// served only with the rules the schema declares.
+pub fn build_automation_rule_service(
+    repository: std::sync::Arc<crate::infrastructure::persistence::AutomationRuleRepository>,
+) -> AutomationRuleService {
+    AutomationRuleService::with_repository(repository).with_guard(std::sync::Arc::new(AutomationRuleRowRules))
+}
+
+/// A `AutomationRunService` over `repository` with its write guard attached: the way to build it, so its writes are
+/// served only with the rules the schema declares.
+pub fn build_automation_run_service(
+    repository: std::sync::Arc<crate::infrastructure::persistence::AutomationRunRepository>,
+) -> AutomationRunService {
+    AutomationRunService::with_repository(repository).with_guard(std::sync::Arc::new(AutomationRunRowRules))
+}
+
+/// A `SchedulerPostureService` over `repository` with its write guard attached: the way to build it, so its writes are
+/// served only with the rules the schema declares.
+pub fn build_scheduler_posture_service(
+    repository: std::sync::Arc<crate::infrastructure::persistence::SchedulerPostureRepository>,
+) -> SchedulerPostureService {
+    SchedulerPostureService::with_repository(repository).with_guard(std::sync::Arc::new(SchedulerPostureRowRules))
+}
+
 // This directory's extension (hand-written; ADR-0031).
 include!("mod.ext.rs");
