@@ -34,7 +34,6 @@ pub struct CreateAutomationRunDto {
     #[serde(alias = "automation_id")]
     pub automation_id: Uuid,
     pub trigger: FoundationTriggerKind,
-    pub status: FoundationRunStatus,
     #[cfg_attr(feature = "openapi", schema(example = "example"))]
     #[serde(alias = "envelope_id")]
     pub envelope_id: String,
@@ -282,7 +281,7 @@ impl From<CreateAutomationRunDto> for AutomationRun {
             id: Uuid::new_v4(),
             automation_id: dto.automation_id,
             trigger: dto.trigger,
-            status: dto.status,
+            status: FoundationRunStatus::Fired,
             envelope_id: dto.envelope_id,
             source_event_type: dto.source_event_type,
             aggregate_id: dto.aggregate_id,

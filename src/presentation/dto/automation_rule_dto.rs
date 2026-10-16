@@ -35,8 +35,6 @@ pub struct CreateAutomationRuleDto {
     pub description: Option<String>,
     #[cfg_attr(feature = "openapi", schema(example = "example"))]
     pub model: String,
-    #[serde(alias = "trigger_kind")]
-    pub trigger_kind: FoundationTriggerKind,
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "trigger_pattern")]
     pub trigger_pattern: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "time_field")]
@@ -260,7 +258,7 @@ impl From<CreateAutomationRuleDto> for AutomationRule {
             name: dto.name,
             description: dto.description,
             model: dto.model,
-            trigger_kind: dto.trigger_kind,
+            trigger_kind: FoundationTriggerKind::OnEvent,
             trigger_pattern: dto.trigger_pattern,
             time_field: dto.time_field,
             delay_minutes: dto.delay_minutes,

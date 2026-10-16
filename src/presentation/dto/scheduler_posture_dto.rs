@@ -31,7 +31,6 @@ use crate::domain::entity::FoundationSchedulerPosture;
 pub struct CreateSchedulerPostureDto {
     #[cfg_attr(feature = "openapi", schema(example = true))]
     pub singleton: bool,
-    pub posture: FoundationSchedulerPosture,
     #[cfg_attr(feature = "openapi", schema(example = 42))]
     #[serde(alias = "time_rule_count")]
     pub time_rule_count: i32,
@@ -246,7 +245,7 @@ impl From<CreateSchedulerPostureDto> for SchedulerPosture {
         Self {
             id: Uuid::new_v4(),
             singleton: dto.singleton,
-            posture: dto.posture,
+            posture: FoundationSchedulerPosture::Inactive,
             time_rule_count: dto.time_rule_count,
             min_delay_minutes: dto.min_delay_minutes,
             interval_minutes: dto.interval_minutes,
