@@ -44,6 +44,7 @@ pub struct CreateAutomationRunDto {
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "parent_run_id")]
     pub parent_run_id: Option<Uuid>,
     #[cfg_attr(feature = "openapi", schema(example = 42))]
+    #[serde(default)]
     pub depth: i32,
     #[serde(alias = "actions_applied")]
     pub actions_applied: serde_json::Value,
@@ -117,12 +118,12 @@ pub struct PatchAutomationRunDto {
     #[cfg_attr(feature = "openapi", schema(example = "example"))]
     #[serde(skip_serializing_if = "Option::is_none", alias = "envelope_id")]
     pub envelope_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "source_event_type")]
-    pub source_event_type: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "aggregate_id")]
-    pub aggregate_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "parent_run_id")]
-    pub parent_run_id: Option<Uuid>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "source_event_type")]
+    pub source_event_type: Option<Option<String>>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "aggregate_id")]
+    pub aggregate_id: Option<Option<String>>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "parent_run_id")]
+    pub parent_run_id: Option<Option<Uuid>>,
     #[cfg_attr(feature = "openapi", schema(example = 42))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub depth: Option<i32>,
@@ -130,8 +131,8 @@ pub struct PatchAutomationRunDto {
     pub actions_applied: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "effect_event_ids")]
     pub effect_event_ids: Option<serde_json::Value>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub detail: Option<String>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option")]
+    pub detail: Option<Option<String>>,
     #[cfg_attr(feature = "openapi", schema(example = "2024-01-01T00:00:00Z"))]
     #[serde(skip_serializing_if = "Option::is_none", alias = "occurred_at")]
     pub occurred_at: Option<DateTime<Utc>>,
@@ -340,12 +341,4 @@ impl backbone_core::ApplyUpdateDto<UpdateAutomationRunDto> for AutomationRun {
         Ok(self)
     }
 }
-
-// =============================================================================
-// Custom DTOs
-// =============================================================================
-
-// Add custom DTOs specific to AutomationRun here.
-// This section will be preserved during regeneration.
-// >>> END CUSTOM DTOs
 

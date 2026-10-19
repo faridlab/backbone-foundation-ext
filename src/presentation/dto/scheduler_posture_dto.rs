@@ -30,9 +30,10 @@ use crate::domain::entity::FoundationSchedulerPosture;
 #[serde(rename_all = "camelCase")]
 pub struct CreateSchedulerPostureDto {
     #[cfg_attr(feature = "openapi", schema(example = true))]
+    #[serde(default = "default_create_scheduler_posture_singleton")]
     pub singleton: bool,
     #[cfg_attr(feature = "openapi", schema(example = 42))]
-    #[serde(alias = "time_rule_count")]
+    #[serde(default, alias = "time_rule_count")]
     pub time_rule_count: i32,
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "min_delay_minutes")]
     pub min_delay_minutes: Option<i32>,
@@ -41,10 +42,14 @@ pub struct CreateSchedulerPostureDto {
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "last_evaluated_at")]
     pub last_evaluated_at: Option<DateTime<Utc>>,
     #[cfg_attr(feature = "openapi", schema(example = 42))]
-    #[serde(alias = "last_fired_count")]
+    #[serde(default, alias = "last_fired_count")]
     pub last_fired_count: i32,
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "last_deviation_note")]
     pub last_deviation_note: Option<String>,
+}
+
+fn default_create_scheduler_posture_singleton() -> bool {
+    true
 }
 
 // =============================================================================
@@ -98,17 +103,17 @@ pub struct PatchSchedulerPostureDto {
     #[cfg_attr(feature = "openapi", schema(example = 42))]
     #[serde(skip_serializing_if = "Option::is_none", alias = "time_rule_count")]
     pub time_rule_count: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "min_delay_minutes")]
-    pub min_delay_minutes: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "interval_minutes")]
-    pub interval_minutes: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "last_evaluated_at")]
-    pub last_evaluated_at: Option<DateTime<Utc>>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "min_delay_minutes")]
+    pub min_delay_minutes: Option<Option<i32>>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "interval_minutes")]
+    pub interval_minutes: Option<Option<i32>>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "last_evaluated_at")]
+    pub last_evaluated_at: Option<Option<DateTime<Utc>>>,
     #[cfg_attr(feature = "openapi", schema(example = 42))]
     #[serde(skip_serializing_if = "Option::is_none", alias = "last_fired_count")]
     pub last_fired_count: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "last_deviation_note")]
-    pub last_deviation_note: Option<String>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "last_deviation_note")]
+    pub last_deviation_note: Option<Option<String>>,
 }
 
 impl PatchSchedulerPostureDto {
@@ -293,12 +298,4 @@ impl backbone_core::ApplyUpdateDto<UpdateSchedulerPostureDto> for SchedulerPostu
         Ok(self)
     }
 }
-
-// =============================================================================
-// Custom DTOs
-// =============================================================================
-
-// Add custom DTOs specific to SchedulerPosture here.
-// This section will be preserved during regeneration.
-// >>> END CUSTOM DTOs
 

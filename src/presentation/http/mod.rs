@@ -11,6 +11,6 @@ pub mod scheduler_posture_handler;
 
 
 // Re-exports
-pub use automation_rule_handler::{create_automation_rule_routes, create_automation_rule_read_routes, create_automation_rule_write_routes};
-pub use automation_run_handler::{create_automation_run_routes, create_automation_run_read_routes, create_automation_run_write_routes};
-pub use scheduler_posture_handler::{create_scheduler_posture_routes, create_scheduler_posture_read_routes, create_scheduler_posture_write_routes};
+pub use automation_rule_handler::{create_automation_rule_routes, create_automation_rule_read_routes, create_automation_rule_write_routes, automation_rule_permissions};
+pub use automation_run_handler::{create_automation_run_routes, create_automation_run_read_routes, create_automation_run_write_routes, automation_run_permissions};
+pub use scheduler_posture_handler::{create_scheduler_posture_routes, create_scheduler_posture_read_routes, create_scheduler_posture_write_routes, scheduler_posture_permissions};

@@ -43,9 +43,14 @@ pub struct CreateAutomationRuleDto {
     pub delay_minutes: Option<i32>,
     pub actions: serde_json::Value,
     #[cfg_attr(feature = "openapi", schema(example = true))]
+    #[serde(default = "default_create_automation_rule_active")]
     pub active: bool,
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "created_by_source")]
     pub created_by_source: Option<String>,
+}
+
+fn default_create_automation_rule_active() -> bool {
+    true
 }
 
 // =============================================================================
@@ -96,26 +101,26 @@ pub struct PatchAutomationRuleDto {
     #[cfg_attr(feature = "openapi", schema(example = "example"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option")]
+    pub description: Option<Option<String>>,
     #[cfg_attr(feature = "openapi", schema(example = "example"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "trigger_kind")]
     pub trigger_kind: Option<FoundationTriggerKind>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "trigger_pattern")]
-    pub trigger_pattern: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "time_field")]
-    pub time_field: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "delay_minutes")]
-    pub delay_minutes: Option<i32>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "trigger_pattern")]
+    pub trigger_pattern: Option<Option<String>>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "time_field")]
+    pub time_field: Option<Option<String>>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "delay_minutes")]
+    pub delay_minutes: Option<Option<i32>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub actions: Option<serde_json::Value>,
     #[cfg_attr(feature = "openapi", schema(example = true))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "created_by_source")]
-    pub created_by_source: Option<String>,
+    #[serde(default, deserialize_with = "crate::presentation::dto::double_option", alias = "created_by_source")]
+    pub created_by_source: Option<Option<String>>,
 }
 
 impl PatchAutomationRuleDto {
@@ -310,12 +315,4 @@ impl backbone_core::ApplyUpdateDto<UpdateAutomationRuleDto> for AutomationRule {
         Ok(self)
     }
 }
-
-// =============================================================================
-// Custom DTOs
-// =============================================================================
-
-// Add custom DTOs specific to AutomationRule here.
-// This section will be preserved during regeneration.
-// >>> END CUSTOM DTOs
 

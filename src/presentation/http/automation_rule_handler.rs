@@ -80,6 +80,13 @@ impl axum::response::IntoResponse for AutomationRuleError {
 // Route Configuration
 // =============================================================================
 
+/// The permissions this entity's generic routes require: `automation_rule:<action>` for `read`, `create`,
+/// `update`, `delete`, `restore` and `purge`, with any rename the schema's `requires:` declares.
+pub fn automation_rule_permissions() -> backbone_core::http::CrudPermissions {
+    backbone_core::http::CrudPermissions::new("automation_rule")
+        .in_module("foundation_ext")
+}
+
 /// Create Axum router with all 16 Backbone endpoints for AutomationRule.
 ///
 /// # Routes
@@ -109,21 +116,23 @@ impl axum::response::IntoResponse for AutomationRuleError {
 /// let router = create_automation_rule_routes(service);
 /// ```
 pub fn create_automation_rule_routes(service: Arc<AutomationRuleService>) -> Router {
-    BackboneCrudHandler::<AutomationRuleService, AutomationRule, CreateAutomationRuleDto, UpdateAutomationRuleDto, AutomationRuleResponseDto>::routes(
+    BackboneCrudHandler::<AutomationRuleService, AutomationRule, CreateAutomationRuleDto, UpdateAutomationRuleDto, AutomationRuleResponseDto>::routes_guarded(
         service,
         "/automation_rules",
+        automation_rule_permissions(),
     )
 }
 
 /// Create Axum router with only the read (GET) endpoints for AutomationRule.
 ///
-/// Safe for public, unauthenticated exposure (e.g., reference data).
+/// Each route requires the entity's `read` permission, so it needs an authenticated caller.
 /// Mutations must be served separately via `create_automation_rule_write_routes`,
 /// typically wrapped in an auth middleware layer.
 pub fn create_automation_rule_read_routes(service: Arc<AutomationRuleService>) -> Router {
-    BackboneCrudHandler::<AutomationRuleService, AutomationRule, CreateAutomationRuleDto, UpdateAutomationRuleDto, AutomationRuleResponseDto>::read_routes(
+    BackboneCrudHandler::<AutomationRuleService, AutomationRule, CreateAutomationRuleDto, UpdateAutomationRuleDto, AutomationRuleResponseDto>::read_routes_guarded(
         service,
         "/automation_rules",
+        automation_rule_permissions(),
     )
 }
 
@@ -139,9 +148,10 @@ pub fn create_automation_rule_read_routes(service: Arc<AutomationRuleService>) -
 /// service (e.g. a command router over its domain engine), serve THAT instead
 /// for any mutation that must respect domain rules.
 pub fn create_automation_rule_write_routes(service: Arc<AutomationRuleService>) -> Router {
-    BackboneCrudHandler::<AutomationRuleService, AutomationRule, CreateAutomationRuleDto, UpdateAutomationRuleDto, AutomationRuleResponseDto>::write_routes(
+    BackboneCrudHandler::<AutomationRuleService, AutomationRule, CreateAutomationRuleDto, UpdateAutomationRuleDto, AutomationRuleResponseDto>::write_routes_guarded(
         service,
         "/automation_rules",
+        automation_rule_permissions(),
     )
 }
 

@@ -245,6 +245,13 @@ impl backbone_core::PersistentEntity for AutomationRun {
     fn write_protected_fields() -> &'static [&'static str] {
         &["status"]
     }
+    fn references() -> &'static [backbone_core::Reference] {
+        const REFERENCES: &[backbone_core::Reference] = &[
+            backbone_core::Reference::new("automation_id", "foundation_ext.foundation_automation_rules", "id"),
+            backbone_core::Reference::new("parent_run_id", "foundation_ext.foundation_automation_runs", "id"),
+        ];
+        REFERENCES
+    }
     fn entity_id(&self) -> String {
         self.id.to_string()
     }

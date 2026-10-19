@@ -41,30 +41,6 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-    post:
-      tags:
-        - AutomationRules
-      summary: Create AutomationRule
-      description: Create a new AutomationRule
-      operationId: createAutomationRule
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAutomationRuleRequest'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRule'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
   /api/v1/foundation_ext/automation_rules/{id}:
     parameters:
       - $ref: '#/components/parameters/IdParam'
@@ -84,181 +60,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-    put:
-      tags:
-        - AutomationRules
-      summary: Update AutomationRule (full)
-      operationId: updateAutomationRule
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAutomationRuleRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRule'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    patch:
-      tags:
-        - AutomationRules
-      summary: Update AutomationRule (partial)
-      operationId: patchAutomationRule
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchAutomationRuleRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRule'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    delete:
-      tags:
-        - AutomationRules
-      summary: Delete AutomationRule (soft)
-      operationId: deleteAutomationRule
-      responses:
-        '204':
-          description: Deleted
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /api/v1/foundation_ext/automation_rules/bulk:
-    post:
-      tags:
-        - AutomationRules
-      summary: Bulk create AutomationRules
-      operationId: bulkCreateAutomationRules
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateAutomationRuleRequest'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AutomationRule'
-    put:
-      tags:
-        - AutomationRules
-      summary: Bulk update AutomationRules (full, atomic)
-      operationId: bulkUpdateAutomationRules
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                allOf:
-                  - type: object
-                    required: [id]
-                    properties:
-                      id:
-                        type: string
-                  - $ref: '#/components/schemas/UpdateAutomationRuleRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRuleBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-    patch:
-      tags:
-        - AutomationRules
-      summary: Bulk partial-update AutomationRules (atomic)
-      operationId: bulkPatchAutomationRules
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - type: object
-                  required: [ids, patch]
-                  properties:
-                    ids:
-                      type: array
-                      items: { type: string }
-                    patch:
-                      type: object
-                      additionalProperties: true
-                - type: object
-                  required: [items]
-                  properties:
-                    items:
-                      type: array
-                      items:
-                        type: object
-                        required: [id, patch]
-                        properties:
-                          id: { type: string }
-                          patch: { type: object, additionalProperties: true }
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRuleBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/automation_rules/upsert:
-    post:
-      tags:
-        - AutomationRules
-      summary: Upsert AutomationRule
-      operationId: upsertAutomationRule
-      parameters:
-        - name: key_field
-          in: query
-          schema:
-            type: string
-        - name: key_value
-          in: query
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAutomationRuleRequest'
-      responses:
-        '200':
-          description: Upserted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRule'
-
   /api/v1/foundation_ext/automation_rules/trash:
     get:
       tags:
@@ -275,115 +76,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AutomationRuleList'
-
-  /api/v1/foundation_ext/automation_rules/{id}/restore:
-    parameters:
-      - $ref: '#/components/parameters/IdParam'
-    post:
-      tags:
-        - AutomationRules
-      summary: Restore deleted AutomationRule
-      operationId: restoreAutomationRule
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRule'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /api/v1/foundation_ext/automation_rules/empty:
-    delete:
-      tags:
-        - AutomationRules
-      summary: Empty trash for AutomationRules
-      operationId: emptyTrashAutomationRules
-      responses:
-        '200':
-          description: Trash emptied
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  deleted_count:
-                    type: integer
-
-  /api/v1/foundation_ext/automation_rules/delete/bulk:
-    post:
-      tags:
-        - AutomationRules
-      summary: Bulk soft-delete AutomationRules by ids (atomic)
-      operationId: bulkDeleteAutomationRules
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Soft-deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  soft_deleted: { type: integer }
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/automation_rules/restore/bulk:
-    post:
-      tags:
-        - AutomationRules
-      summary: Bulk restore AutomationRules by ids (atomic)
-      operationId: bulkRestoreAutomationRules
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRuleBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/automation_rules/restore/all:
-    post:
-      tags:
-        - AutomationRules
-      summary: Restore all soft-deleted AutomationRules
-      operationId: restoreAllAutomationRules
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  restored: { type: integer }
-
-  /api/v1/foundation_ext/automation_rules/trash/bulk:
-    delete:
-      tags:
-        - AutomationRules
-      summary: Bulk permanently-delete AutomationRules from trash by ids (atomic)
-      operationId: bulkPermanentDeleteAutomationRules
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Permanently deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  permanently_deleted: { type: integer }
-        '400':
-          $ref: '#/components/responses/BadRequest'
 
   /api/v1/foundation_ext/automation_runs:
     get:
@@ -407,30 +99,6 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-    post:
-      tags:
-        - AutomationRuns
-      summary: Create AutomationRun
-      description: Create a new AutomationRun
-      operationId: createAutomationRun
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAutomationRunRequest'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRun'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
   /api/v1/foundation_ext/automation_runs/{id}:
     parameters:
       - $ref: '#/components/parameters/IdParam'
@@ -450,181 +118,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-    put:
-      tags:
-        - AutomationRuns
-      summary: Update AutomationRun (full)
-      operationId: updateAutomationRun
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAutomationRunRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRun'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    patch:
-      tags:
-        - AutomationRuns
-      summary: Update AutomationRun (partial)
-      operationId: patchAutomationRun
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchAutomationRunRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRun'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    delete:
-      tags:
-        - AutomationRuns
-      summary: Delete AutomationRun (soft)
-      operationId: deleteAutomationRun
-      responses:
-        '204':
-          description: Deleted
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /api/v1/foundation_ext/automation_runs/bulk:
-    post:
-      tags:
-        - AutomationRuns
-      summary: Bulk create AutomationRuns
-      operationId: bulkCreateAutomationRuns
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateAutomationRunRequest'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AutomationRun'
-    put:
-      tags:
-        - AutomationRuns
-      summary: Bulk update AutomationRuns (full, atomic)
-      operationId: bulkUpdateAutomationRuns
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                allOf:
-                  - type: object
-                    required: [id]
-                    properties:
-                      id:
-                        type: string
-                  - $ref: '#/components/schemas/UpdateAutomationRunRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRunBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-    patch:
-      tags:
-        - AutomationRuns
-      summary: Bulk partial-update AutomationRuns (atomic)
-      operationId: bulkPatchAutomationRuns
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - type: object
-                  required: [ids, patch]
-                  properties:
-                    ids:
-                      type: array
-                      items: { type: string }
-                    patch:
-                      type: object
-                      additionalProperties: true
-                - type: object
-                  required: [items]
-                  properties:
-                    items:
-                      type: array
-                      items:
-                        type: object
-                        required: [id, patch]
-                        properties:
-                          id: { type: string }
-                          patch: { type: object, additionalProperties: true }
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRunBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/automation_runs/upsert:
-    post:
-      tags:
-        - AutomationRuns
-      summary: Upsert AutomationRun
-      operationId: upsertAutomationRun
-      parameters:
-        - name: key_field
-          in: query
-          schema:
-            type: string
-        - name: key_value
-          in: query
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAutomationRunRequest'
-      responses:
-        '200':
-          description: Upserted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRun'
-
   /api/v1/foundation_ext/automation_runs/trash:
     get:
       tags:
@@ -641,115 +134,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AutomationRunList'
-
-  /api/v1/foundation_ext/automation_runs/{id}/restore:
-    parameters:
-      - $ref: '#/components/parameters/IdParam'
-    post:
-      tags:
-        - AutomationRuns
-      summary: Restore deleted AutomationRun
-      operationId: restoreAutomationRun
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRun'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /api/v1/foundation_ext/automation_runs/empty:
-    delete:
-      tags:
-        - AutomationRuns
-      summary: Empty trash for AutomationRuns
-      operationId: emptyTrashAutomationRuns
-      responses:
-        '200':
-          description: Trash emptied
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  deleted_count:
-                    type: integer
-
-  /api/v1/foundation_ext/automation_runs/delete/bulk:
-    post:
-      tags:
-        - AutomationRuns
-      summary: Bulk soft-delete AutomationRuns by ids (atomic)
-      operationId: bulkDeleteAutomationRuns
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Soft-deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  soft_deleted: { type: integer }
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/automation_runs/restore/bulk:
-    post:
-      tags:
-        - AutomationRuns
-      summary: Bulk restore AutomationRuns by ids (atomic)
-      operationId: bulkRestoreAutomationRuns
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AutomationRunBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/automation_runs/restore/all:
-    post:
-      tags:
-        - AutomationRuns
-      summary: Restore all soft-deleted AutomationRuns
-      operationId: restoreAllAutomationRuns
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  restored: { type: integer }
-
-  /api/v1/foundation_ext/automation_runs/trash/bulk:
-    delete:
-      tags:
-        - AutomationRuns
-      summary: Bulk permanently-delete AutomationRuns from trash by ids (atomic)
-      operationId: bulkPermanentDeleteAutomationRuns
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Permanently deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  permanently_deleted: { type: integer }
-        '400':
-          $ref: '#/components/responses/BadRequest'
 
   /api/v1/foundation_ext/scheduler_postures:
     get:
@@ -773,30 +157,6 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-    post:
-      tags:
-        - SchedulerPostures
-      summary: Create SchedulerPosture
-      description: Create a new SchedulerPosture
-      operationId: createSchedulerPosture
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateSchedulerPostureRequest'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPosture'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
   /api/v1/foundation_ext/scheduler_postures/{id}:
     parameters:
       - $ref: '#/components/parameters/IdParam'
@@ -816,181 +176,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-    put:
-      tags:
-        - SchedulerPostures
-      summary: Update SchedulerPosture (full)
-      operationId: updateSchedulerPosture
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateSchedulerPostureRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPosture'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    patch:
-      tags:
-        - SchedulerPostures
-      summary: Update SchedulerPosture (partial)
-      operationId: patchSchedulerPosture
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchSchedulerPostureRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPosture'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    delete:
-      tags:
-        - SchedulerPostures
-      summary: Delete SchedulerPosture (soft)
-      operationId: deleteSchedulerPosture
-      responses:
-        '204':
-          description: Deleted
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /api/v1/foundation_ext/scheduler_postures/bulk:
-    post:
-      tags:
-        - SchedulerPostures
-      summary: Bulk create SchedulerPostures
-      operationId: bulkCreateSchedulerPostures
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateSchedulerPostureRequest'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SchedulerPosture'
-    put:
-      tags:
-        - SchedulerPostures
-      summary: Bulk update SchedulerPostures (full, atomic)
-      operationId: bulkUpdateSchedulerPostures
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                allOf:
-                  - type: object
-                    required: [id]
-                    properties:
-                      id:
-                        type: string
-                  - $ref: '#/components/schemas/UpdateSchedulerPostureRequest'
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPostureBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-    patch:
-      tags:
-        - SchedulerPostures
-      summary: Bulk partial-update SchedulerPostures (atomic)
-      operationId: bulkPatchSchedulerPostures
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - type: object
-                  required: [ids, patch]
-                  properties:
-                    ids:
-                      type: array
-                      items: { type: string }
-                    patch:
-                      type: object
-                      additionalProperties: true
-                - type: object
-                  required: [items]
-                  properties:
-                    items:
-                      type: array
-                      items:
-                        type: object
-                        required: [id, patch]
-                        properties:
-                          id: { type: string }
-                          patch: { type: object, additionalProperties: true }
-      responses:
-        '200':
-          description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPostureBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/scheduler_postures/upsert:
-    post:
-      tags:
-        - SchedulerPostures
-      summary: Upsert SchedulerPosture
-      operationId: upsertSchedulerPosture
-      parameters:
-        - name: key_field
-          in: query
-          schema:
-            type: string
-        - name: key_value
-          in: query
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateSchedulerPostureRequest'
-      responses:
-        '200':
-          description: Upserted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPosture'
-
   /api/v1/foundation_ext/scheduler_postures/trash:
     get:
       tags:
@@ -1007,115 +192,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SchedulerPostureList'
-
-  /api/v1/foundation_ext/scheduler_postures/{id}/restore:
-    parameters:
-      - $ref: '#/components/parameters/IdParam'
-    post:
-      tags:
-        - SchedulerPostures
-      summary: Restore deleted SchedulerPosture
-      operationId: restoreSchedulerPosture
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPosture'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /api/v1/foundation_ext/scheduler_postures/empty:
-    delete:
-      tags:
-        - SchedulerPostures
-      summary: Empty trash for SchedulerPostures
-      operationId: emptyTrashSchedulerPostures
-      responses:
-        '200':
-          description: Trash emptied
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  deleted_count:
-                    type: integer
-
-  /api/v1/foundation_ext/scheduler_postures/delete/bulk:
-    post:
-      tags:
-        - SchedulerPostures
-      summary: Bulk soft-delete SchedulerPostures by ids (atomic)
-      operationId: bulkDeleteSchedulerPostures
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Soft-deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  soft_deleted: { type: integer }
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/scheduler_postures/restore/bulk:
-    post:
-      tags:
-        - SchedulerPostures
-      summary: Bulk restore SchedulerPostures by ids (atomic)
-      operationId: bulkRestoreSchedulerPostures
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SchedulerPostureBulkResult'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  /api/v1/foundation_ext/scheduler_postures/restore/all:
-    post:
-      tags:
-        - SchedulerPostures
-      summary: Restore all soft-deleted SchedulerPostures
-      operationId: restoreAllSchedulerPostures
-      responses:
-        '200':
-          description: Restored
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  restored: { type: integer }
-
-  /api/v1/foundation_ext/scheduler_postures/trash/bulk:
-    delete:
-      tags:
-        - SchedulerPostures
-      summary: Bulk permanently-delete SchedulerPostures from trash by ids (atomic)
-      operationId: bulkPermanentDeleteSchedulerPostures
-      requestBody:
-        $ref: '#/components/requestBodies/BatchIds'
-      responses:
-        '200':
-          description: Permanently deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  permanently_deleted: { type: integer }
-        '400':
-          $ref: '#/components/responses/BadRequest'
 
 components:
   schemas:
@@ -1186,10 +262,7 @@ components:
       required:
         - name
         - model
-        - trigger_kind
         - actions
-        - active
-        - metadata
       properties:
         name:
           type: string
@@ -1201,8 +274,6 @@ components:
         model:
           type: string
           maxLength: 120
-        trigger_kind:
-          type: string
         trigger_pattern:
           nullable: true
           type: string
@@ -1223,8 +294,6 @@ components:
           nullable: true
           type: string
           maxLength: 120
-        metadata:
-          type: object
 
     UpdateAutomationRuleRequest:
       type: object
@@ -1234,7 +303,6 @@ components:
         - trigger_kind
         - actions
         - active
-        - metadata
       properties:
         name:
           type: string
@@ -1268,8 +336,6 @@ components:
           nullable: true
           type: string
           maxLength: 120
-        metadata:
-          type: object
 
     PatchAutomationRuleRequest:
       type: object
@@ -1306,8 +372,6 @@ components:
           nullable: true
           type: string
           maxLength: 120
-        metadata:
-          type: object
 
     AutomationRuleList:
       type: object
@@ -1393,20 +457,15 @@ components:
       required:
         - automation_id
         - trigger
-        - status
         - envelope_id
-        - depth
         - actions_applied
         - effect_event_ids
         - occurred_at
-        - metadata
       properties:
         automation_id:
           type: string
           format: uuid
         trigger:
-          type: string
-        status:
           type: string
         envelope_id:
           type: string
@@ -1437,8 +496,6 @@ components:
         occurred_at:
           type: string
           format: date-time
-        metadata:
-          type: object
 
     UpdateAutomationRunRequest:
       type: object
@@ -1451,7 +508,6 @@ components:
         - actions_applied
         - effect_event_ids
         - occurred_at
-        - metadata
       properties:
         automation_id:
           type: string
@@ -1489,8 +545,6 @@ components:
         occurred_at:
           type: string
           format: date-time
-        metadata:
-          type: object
 
     PatchAutomationRunRequest:
       type: object
@@ -1531,8 +585,6 @@ components:
         occurred_at:
           type: string
           format: date-time
-        metadata:
-          type: object
 
     AutomationRunList:
       type: object
@@ -1601,17 +653,9 @@ components:
 
     CreateSchedulerPostureRequest:
       type: object
-      required:
-        - singleton
-        - posture
-        - time_rule_count
-        - last_fired_count
-        - metadata
       properties:
         singleton:
           type: boolean
-        posture:
-          type: string
         time_rule_count:
           type: integer
           format: int32
@@ -1634,8 +678,6 @@ components:
           nullable: true
           type: string
           maxLength: 300
-        metadata:
-          type: object
 
     UpdateSchedulerPostureRequest:
       type: object
@@ -1644,7 +686,6 @@ components:
         - posture
         - time_rule_count
         - last_fired_count
-        - metadata
       properties:
         singleton:
           type: boolean
@@ -1672,8 +713,6 @@ components:
           nullable: true
           type: string
           maxLength: 300
-        metadata:
-          type: object
 
     PatchSchedulerPostureRequest:
       type: object
@@ -1704,8 +743,6 @@ components:
           nullable: true
           type: string
           maxLength: 300
-        metadata:
-          type: object
 
     SchedulerPostureList:
       type: object
